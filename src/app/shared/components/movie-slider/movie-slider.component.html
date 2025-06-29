@@ -1,0 +1,111 @@
+<div class="movie-slider" *ngIf="movies.length > 0">
+  <div class="slider-header">
+    <h2 class="slider-title">{{ title }}</h2>
+    <div class="slider-controls">
+      <button class="control-btn prev" (click)="prevSlide()" [disabled]="movies.length <= 1">
+        <svg width="24" height="24" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+        </svg>
+      </button>
+      <button class="control-btn next" (click)="nextSlide()" [disabled]="movies.length <= 1">
+        <svg width="24" height="24" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Featured Movie -->
+  <div class="featured-movie" *ngIf="currentMovie">
+    <div class="movie-backdrop"
+         [style.background-image]="'url(' + getBackdropUrl(currentMovie) + ')'">
+      <div class="backdrop-overlay"></div>
+
+      <div class="movie-content">
+        <div class="movie-poster">
+          <img [src]="getPosterUrl(currentMovie)"
+               [alt]="currentMovie.title"
+               [title]="currentMovie.title"
+               class="poster-img"
+               (error)="onImageError($event, currentMovie)">
+        </div>
+
+        <div class="movie-info">
+          <h3 class="movie-title">{{ currentMovie.title }}</h3>
+
+          <div class="movie-meta">
+            <div class="rating">
+              <span class="imdb-rating">
+                <svg width="20" height="20" viewBox="0 0 24 24" class="star-icon">
+                  <path fill="#f5c518" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+                {{ formatRating(currentMovie.imdb_score) }}
+              </span>
+              <span class="vote-count">({{ (currentMovie.rating_count || 0) | number }})</span>
+            </div>
+
+            <span class="year">{{ getMovieYear(currentMovie) }}</span>
+            <span class="runtime">{{ getRuntime(currentMovie) }}</span>
+            <span class="genres">{{ getGenresText(currentMovie) }}</span>
+          </div>
+
+          <p class="movie-overview">{{ currentMovie.summary }}</p>
+
+          <div class="movie-actions">
+            <button class="action-btn primary" (click)="onWatchTrailer(currentMovie)">
+              <span>▶</span>
+              Watch Trailer
+            </button>
+            <button class="action-btn secondary" (click)="onAddToWatchlist(currentMovie)">
+              <span>+</span>
+              Watchlist
+            </button>
+            <button class="action-btn tertiary" [routerLink]="['/movie', currentMovie.id]">
+              <span>ⓘ</span>
+              More Info
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Movie Thumbnails -->
+  <div class="movie-thumbnails">
+    <div class="thumbnails-container">
+      <div class="thumbnail-item"
+           *ngFor="let movie of getVisibleMovies(); let i = index"
+           [class.active]="i === 0"
+           (click)="goToSlide((currentIndex + i) % movies.length)">
+        <div class="thumbnail-image">
+          <img [src]="getPosterUrl(movie)"
+               [alt]="movie.title"
+               [title]="movie.title"
+               class="thumbnail-img"
+               (error)="onImageError($event, movie)">
+          <div class="thumbnail-overlay"></div>
+        </div>
+
+        <div class="thumbnail-info">
+          <h4 class="thumbnail-title">{{ movie.title }}</h4>
+          <div class="thumbnail-rating">
+            <svg width="14" height="14" viewBox="0 0 24 24" class="star-icon">
+              <path fill="#f5c518" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+            {{ formatRating(movie.imdb_score) }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide Indicators -->
+  <div class="slide-indicators" *ngIf="movies.length > 1">
+    <button class="indicator"
+            *ngFor="let movie of movies; let i = index"
+            [class.active]="i === currentIndex"
+            (click)="goToSlide(i)"
+            [attr.aria-label]="'Go to slide ' + (i + 1)">
+    </button>
+  </div>
+</div>

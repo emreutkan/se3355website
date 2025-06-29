@@ -1,0 +1,132 @@
+import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { Movie } from '../../models/movie.model';
+import { LanguageService } from '../../services/language.service';
+
+@Component({
+  selector: 'app-movie-slider',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  templateUrl: './movie-slider.component.html',
+  styleUrls: ['./movie-slider.component.css']
+})
+export class MovieSliderComponent implements OnInit, OnDestroy {
+  @Input() movies: Movie[] = [];
+  @Input() autoSlide: boolean = true;
+  @Input() slideInterval: number = 5000;
+  @Input() title: string = '';
+  @Input() showTrailer: boolean = false;
+
+  currentIndex = 0;
+  slideTimer: any;
+  isPlaying = false;
+
+  constructor(private languageService: LanguageService) {}
+
+  ngOnInit() {
+    if (this.autoSlide && this.movies.length > 1) {
+      this.startAutoSlide();
+    }
+  }
+
+  ngOnDestroy() {
+    this.stopAutoSlide();
+  }
+
+  startAutoSlide() {
+    this.slideTimer = setInterval(() => {
+      this.nextSlide();
+    }, this.slideInterval);
+  }
+
+  stopAutoSlide() {
+    if (this.slideTimer) {
+      clearInterval(this.slideTimer);
+    }
+  }
+
+  nextSlide() {
+    if (this.movies.length > 0) {
+      this.currentIndex = (this.currentIndex + 1) % this.movies.length;
+    }
+  }
+
+  prevSlide() {
+    if (this.movies.length > 0) {
+      this.currentIndex = this.currentIndex === 0 ? this.movies.length - 1 : this.currentIndex - 1;
+    }
+  }
+
+  goToSlide(index: number) {
+    this.currentIndex = index;
+    this.stopAutoSlide();
+    if (this.autoSlide) {
+      this.startAutoSlide();
+    }
+  }
+
+  get currentMovie(): Movie | null {
+    return this.movies[this.currentIndex] || null;
+  }
+
+  getVisibleMovies(): Movie[] {
+    return this.movies.slice(this.currentIndex, this.currentIndex + 5);
+  }
+
+  formatRating(rating: number): string {
+    return rating.toFixed(1);
+  }
+
+  getMovieYear(movie: Movie): string {
+    return movie.year.toString();
+  }
+
+  getRuntime(movie: Movie): string {
+    if (!movie.runtime_min) return 'Runtime unknown';
+    const hours = Math.floor(movie.runtime_min / 60);
+    const minutes = movie.runtime_min % 60;
+    return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+  }
+
+  getGenresText(movie: Movie): string {
+    // Backend doesn't provide genres, so return language or default
+    return movie.language || 'Drama';
+  }
+
+  getPosterUrl(movie: Movie): string {
+    return movie.image_url || '';
+  }
+
+  getBackdropUrl(movie: Movie): string {
+    return movie.image_url || '';
+  }
+
+  onImageError(event: any, movie: Movie): void {
+    // Hide the image element if backend image fails to load
+    event.target.style.display = 'none';
+  }
+
+  onWatchTrailer(movie: Movie) {
+    // Trailer functionality to be implemented
+    this.isPlaying = true;
+    this.stopAutoSlide();
+  }
+
+  onAddToWatchlist(movie: Movie) {
+    // Watchlist functionality to be implemented
+  }
+
+  onLearnMore(movie: Movie) {
+    // Navigate to movie details page
+  }
+
+  translate(key: string): string {
+    return this.languageService.translate(key);
+  }
+
+  getRatingStars(rating: number): number[] {
+    const stars = Math.round(rating / 2); // Convert 10-point scale to 5-star scale
+    return Array(5).fill(0).map((_, i) => i < stars ? 1 : 0);
+  }
+}
