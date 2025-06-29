@@ -1,0 +1,27 @@
+<section class="popular-movies-section">
+  <div class="section-header">
+    <h2 class="section-title">Popular Movies</h2>
+    <p class="section-subtitle">Trending now on IMDb</p>
+  </div>
+
+  <div class="movies-container" *ngIf="!loading && !error">
+    <div class="movies-grid">
+      <app-movie-card
+        *ngFor="let movie of popularMovies; trackBy: trackByMovieId"
+        [movie]="movie"
+        (click)="onMovieClick(movie)">
+      </app-movie-card>
+    </div>
+  </div>
+
+  <div class="loading-state" *ngIf="loading">
+    <div class="loading-spinner"></div>
+    <p>Loading popular movies...</p>
+  </div>
+
+  <div class="error-state" *ngIf="error && !loading">
+    <div class="error-icon">⚠️</div>
+    <p class="error-message">{{ error }}</p>
+    <button class="retry-button" (click)="loadPopularMovies()">Try Again</button>
+  </div>
+</section>

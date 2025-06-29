@@ -6,12 +6,13 @@ import {MovieSliderComponent} from '../../shared/components/movie-slider/movie-s
 import {Movie} from '../../shared/models/movie.model';
 import {MovieService} from '../../shared/services/movie.service';
 import {LanguageService} from '../../shared/services/language.service';
+import { PopularMoviesComponent } from './components/popular-movies/popular-movies.component';
 
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule, MovieCardComponent, MovieSliderComponent],
+  imports: [CommonModule, RouterModule, MovieCardComponent, MovieSliderComponent, PopularMoviesComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
