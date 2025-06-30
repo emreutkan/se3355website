@@ -5,9 +5,10 @@
   left: 0;
   right: 0;
   z-index: 1000;
-  background-color: #000000;
-  border-bottom: none;
+  background-color: #121212;
+  border-bottom: 1px solid #303030;
   height: 56px;
+  padding: 0 24px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
@@ -25,25 +26,30 @@
 .navbar__left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 20px;
 }
 
 .navbar__menu-button {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   background: none;
   border: none;
   color: white;
   cursor: pointer;
-  padding: 6px 8px;
-  border-radius: 3px;
+  padding: 8px;
+  border-radius: 4px;
   transition: background-color 0.2s;
-  font-size: 12px;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .navbar__menu-button:hover {
   background-color: rgba(255, 255, 255, 0.1);
+}
+
+.navbar__menu-button .fa-bars {
+  font-size: 16px;
 }
 
 .menu-icon {
@@ -67,7 +73,7 @@
 }
 
 .navbar__logo {
-  margin-left: 6px;
+  margin: 0;
 }
 
 .logo-link {
@@ -77,19 +83,17 @@
 .imdb-logo {
   background-color: #f5c518;
   color: #000;
-  font-weight: 900;
-  font-size: 18px;
-  padding: 3px 8px;
-  border-radius: 3px;
-  font-family: Arial, sans-serif;
-  letter-spacing: 0.05em;
+  font-weight: bold;
+  font-size: 24px;
+  padding: 4px 8px;
+  border-radius: 4px;
 }
 
 /* Center Section - Search */
 .navbar__search {
   flex: 1;
   max-width: 650px;
-  margin: 0 24px;
+  margin: 0 20px;
   position: relative;
 }
 
@@ -100,7 +104,7 @@
   border: 1px solid #303030;
   border-radius: 4px;
   overflow: visible;
-  height: 40px;
+  height: 36px;
   position: relative;
   transition: box-shadow 0.2s;
 }
@@ -113,14 +117,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #f8f8f8;
+  background-color: #fff;
   border-right: 1px solid #ccc;
   height: 100%;
-  padding: 0 12px;
+  padding: 0 10px;
   cursor: pointer;
   position: relative;
-  min-width: 80px;
+  min-width: 70px;
   transition: background-color 0.2s;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
 }
 
 .search-category-selector:hover {
@@ -128,13 +134,13 @@
 }
 
 .selected-category-name {
-  font-size: 14px;
-  font-weight: 500;
-  color: #333;
+  font-size: 13px;
+  font-weight: 400;
+  color: #121212;
 }
 
 .search-category-selector .dropdown-arrow {
-  fill: #333;
+  fill: #121212;
   width: 20px;
   height: 20px;
 }
@@ -188,6 +194,9 @@
   background: transparent;
   height: 100%;
   font-family: 'Roboto', sans-serif;
+  background-color: #fff;
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
 }
 
 .search-input::placeholder {
@@ -203,7 +212,11 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  width: 48px;
+  width: 44px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  background: transparent;
 }
 
 .search-submit:hover .search-icon {
@@ -213,17 +226,17 @@
 .search-icon {
   width: 20px;
   height: 20px;
-  fill: #333;
+  fill: #666;
   transition: fill 0.2s;
 }
 
 /* Typeahead Dropdown */
 .typeahead-dropdown {
   position: absolute;
-  top: calc(100% + 5px);
-  left: -94px;
-  right: -49px;
-  background: #1f1f1f;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  background: #212121;
   border: 1px solid #303030;
   border-radius: 4px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
@@ -321,47 +334,40 @@
   display: flex;
   align-items: center;
   gap: 20px;
+  color: #fff;
+}
+
+.separator {
+  width: 1px;
+  height: 24px;
+  background-color: #444;
 }
 
 .navbar__pro-link {
-  color: white;
+  color: #fff;
+  font-weight: bold;
+  font-size: 16px;
   text-decoration: none;
-  font-size: 12px;
-  font-weight: 400;
-  padding: 6px 8px;
-  border-radius: 3px;
-  transition: background-color 0.2s;
-  font-family: Arial, sans-serif;
 }
 
-.navbar__pro-link:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+.navbar__pro-link .pro-text {
+  color: #5799ef;
 }
 
 .navbar__watchlist {
-  display: flex;
-  align-items: center;
-  gap: 4px;
   background: none;
   border: none;
-  color: white;
+  color: #fff;
   cursor: pointer;
-  padding: 6px 8px;
-  border-radius: 3px;
-  font-size: 12px;
-  font-weight: 400;
-  transition: background-color 0.2s;
-  font-family: Arial, sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
 }
 
-.navbar__watchlist:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.watchlist-icon {
-  width: 14px;
-  height: 14px;
-  fill: white;
+.navbar__watchlist .fa-bookmark {
+  font-size: 16px;
 }
 
 /* User Section */
@@ -369,32 +375,17 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   cursor: pointer;
-  padding: 6px 8px;
-  border-radius: 3px;
-  transition: background-color 0.2s;
-}
-
-.navbar__user:hover {
-  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .sign-in-button {
   background: none;
   border: none;
-  color: white;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  padding: 6px 8px;
-  border-radius: 3px;
-  font-size: 12px;
-  font-weight: 400;
-  transition: background-color 0.2s;
-  font-family: Arial, sans-serif;
-}
-
-.sign-in-button:hover {
-  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .user-avatar {
@@ -412,14 +403,8 @@
 }
 
 .user-name {
-  color: white;
-  font-size: 12px;
-  font-weight: 400;
-  font-family: Arial, sans-serif;
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .dropdown-arrow {
@@ -513,13 +498,7 @@
   align-items: center;
   gap: 4px;
   cursor: pointer;
-  padding: 6px 8px;
-  border-radius: 3px;
-  transition: background-color 0.2s;
-}
-
-.navbar__language:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  font-weight: bold;
 }
 
 .language-code {
@@ -531,32 +510,27 @@
 
 .language-dropdown {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 12px);
   right: 0;
-  margin-top: 8px;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  min-width: 140px;
-  z-index: 1001;
+  background-color: #fff;
+  color: #121212;
+  border: 1px solid #ccc;
+  min-width: 160px;
+  padding: 8px 0;
 }
 
 .language-option {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  cursor: pointer;
-  transition: background-color 0.2s;
+  padding: 8px 16px;
+  font-weight: 400;
 }
 
 .language-option:hover {
-  background-color: #f8f8f8;
+  background-color: #f0f0f0;
 }
 
 .language-option.selected {
-  background-color: #e3f2fd;
+  background-color: #e0e0e0;
+  font-weight: 500;
 }
 
 .lang-flag {

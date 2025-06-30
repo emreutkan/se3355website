@@ -2,22 +2,18 @@
   <div class="navbar__inner">
     <!-- Left side - Logo and menu -->
     <div class="navbar__left">
-      <!-- Menu button (hamburger) -->
-      <button class="navbar__menu-button">
-        <div class="menu-icon">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-        <span class="menu-text">Menu</span>
-      </button>
-
       <!-- IMDb Logo -->
       <div class="navbar__logo">
         <a routerLink="/" class="logo-link">
           <div class="imdb-logo">IMDb</div>
         </a>
       </div>
+
+      <!-- Menu button (hamburger) -->
+      <button class="navbar__menu-button">
+        <i class="fas fa-bars"></i>
+        <span class="menu-text">Menu</span>
+      </button>
     </div>
 
     <!-- Center - Search -->
@@ -50,6 +46,14 @@
             (focus)="onSearchInput({target: {value: searchQuery}})"
             (blur)="onSearchBlur()">
 
+          <button
+            class="search-submit"
+            (click)="onSearch()">
+            <svg class="search-icon" viewBox="0 0 24 24">
+              <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+            </svg>
+          </button>
+
           <!-- Typeahead results -->
           <div class="typeahead-dropdown" *ngIf="showTypeahead && (typeaheadResults.titles.length > 0 || typeaheadResults.celebs.length > 0)">
 
@@ -60,7 +64,7 @@
                    *ngFor="let suggestion of typeaheadResults.titles"
                    (mousedown)="selectSuggestion(suggestion)">
                 <div class="suggestion-placeholder">
-                   <i class="fas fa-film"></i>
+                  <i class="fas fa-film"></i>
                 </div>
                 <div class="suggestion-content">
                   <div class="suggestion-title">{{ suggestion.title }}</div>
@@ -91,26 +95,19 @@
             </ng-container>
           </div>
         </div>
-        <button
-          class="search-submit"
-          (click)="onSearch()">
-          <svg class="search-icon" viewBox="0 0 24 24">
-            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-          </svg>
-        </button>
       </div>
     </div>
 
     <!-- Right side - User actions -->
     <div class="navbar__right">
       <!-- IMDbPro link -->
-      <a href="#" class="navbar__pro-link">IMDbPro</a>
+      <a href="#" class="navbar__pro-link">IMDb<span class="pro-text">Pro</span></a>
+
+      <div class="separator"></div>
 
       <!-- Watchlist -->
       <button class="navbar__watchlist">
-        <svg class="watchlist-icon" viewBox="0 0 24 24">
-          <path d="M14,2A8,8 0 0,0 6,10A8,8 0 0,0 14,18A8,8 0 0,0 22,10A8,8 0 0,0 14,2M14,16A6,6 0 0,1 8,10A6,6 0 0,1 14,4A6,6 0 0,1 20,10A6,6 0 0,1 14,16M12,7V13L16.25,15.15L17.15,13.65L13.75,12.05V7H12Z"/>
-        </svg>
+        <i class="fas fa-bookmark"></i>
         <span>Watchlist</span>
       </button>
 
@@ -120,9 +117,6 @@
       </div>
 
       <div class="navbar__user" *ngIf="isLoggedIn" (click)="toggleUserDropdown()">
-        <div class="user-avatar">
-          {{ getUserDisplayName().charAt(0).toUpperCase() }}
-        </div>
         <span class="user-name">{{ getUserDisplayName() }}</span>
         <svg class="dropdown-arrow" viewBox="0 0 24 24">
           <path d="M7,10L12,15L17,10H7Z"/>
@@ -161,7 +155,7 @@
 
       <!-- Language selector -->
       <div class="navbar__language" (click)="toggleLanguageDropdown()">
-        <span class="language-code">EN</span>
+        <span class="language-code">{{currentLanguage.toUpperCase()}}</span>
         <svg class="dropdown-arrow" viewBox="0 0 24 24">
           <path d="M7,10L12,15L17,10H7Z"/>
         </svg>
@@ -171,8 +165,7 @@
                *ngFor="let lang of supportedLanguages"
                [class.selected]="lang.code === currentLanguage"
                (click)="switchLanguage(lang.code)">
-            <span class="lang-flag">{{ lang.flag }}</span>
-            <span class="lang-name">{{ lang.name }}</span>
+            <span>{{ lang.name }} ({{lang.code.toUpperCase()}})</span>
           </div>
         </div>
       </div>
