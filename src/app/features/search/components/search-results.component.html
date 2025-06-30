@@ -1,9 +1,8 @@
 <div class="search-results-container">
   <!-- Search Header -->
   <div class="search-header" *ngIf="!loading && !error">
-    <h1 class="search-title">
-      Results for <span class="query-text">"{{ searchQuery }}"</span>
-    </h1>
+    <h1 class="main-title">Search</h1>
+    <h2 class="search-query">"{{ searchQuery }}"</h2>
   </div>
 
   <!-- Loading State -->
@@ -17,63 +16,52 @@
     <button class="retry-button" (click)="performSearch()">Try Again</button>
   </div>
 
-  <!-- No Results -->
-  <div class="no-results-container" *ngIf="!hasResults && !loading && !error">
-    <h2 class="no-results-title">No results found for "{{searchQuery}}"</h2>
-    <p class="no-results-message">
-      Try a different search term or check your spelling.
-    </p>
-  </div>
+  <!-- Results Sections -->
+  <div class="results-sections" *ngIf="!loading && !error">
 
-  <!-- Results -->
-  <div class="results-list" *ngIf="hasResults && !loading">
-
-    <!-- Movie Results -->
-    <ng-container *ngIf="movieResults.length > 0">
-      <div class="results-category-section">
-        <h2 class="section-title">Titles</h2>
-        <div class="result-items-list">
-          <div class="result-item" *ngFor="let movie of movieResults" (click)="onMovieClick(movie)">
-            <div class="item-poster">
-              <div class="poster-placeholder">
-                <i class="fas fa-film"></i>
-              </div>
+    <!-- Titles Section -->
+    <div class="results-category-section" *ngIf="searchCategory === 'all' || searchCategory === 'titles'">
+      <h3 class="section-title">Titles</h3>
+      <div class="result-items-list" *ngIf="movieResults.length > 0">
+        <div class="result-item" *ngFor="let movie of movieResults" (click)="onMovieClick(movie)">
+          <div class="item-poster">
+            <div class="poster-placeholder">
+              <i class="fas fa-film"></i>
             </div>
-            <div class="item-details">
-              <h3 class="item-title">{{ movie.title }}</h3>
-              <div class="item-meta">
-                <span class="item-year" *ngIf="movie.year">{{ movie.year }}</span>
-                <span class="item-rating" *ngIf="movie.imdb_score">
-                  <i class="fas fa-star"></i> {{ movie.imdb_score }}/10
-                </span>
-              </div>
+          </div>
+          <div class="item-details">
+            <h4 class="item-title">{{ movie.title }}</h4>
+            <div class="item-meta">
+              <span class="item-year" *ngIf="movie.year">{{ movie.year }}</span>
             </div>
           </div>
         </div>
       </div>
-    </ng-container>
+      <div class="no-results-box" *ngIf="movieResults.length === 0">
+        No results found for "{{searchQuery}}"
+      </div>
+    </div>
 
-    <!-- People Results -->
-    <ng-container *ngIf="personResults.length > 0">
-      <div class="results-category-section">
-        <h2 class="section-title">People</h2>
-        <div class="result-items-list">
-          <div class="result-item" *ngFor="let person of personResults" (click)="onPersonClick(person)">
-            <div class="item-poster">
-              <img *ngIf="person.photo_url" [src]="person.photo_url" [alt]="person.full_name" class="poster-image">
-              <div class="poster-placeholder" *ngIf="!person.photo_url">
-                <i class="fas fa-user"></i>
-              </div>
+    <!-- People Section -->
+    <div class="results-category-section" *ngIf="searchCategory === 'all' || searchCategory === 'celebs'">
+      <h3 class="section-title">People</h3>
+      <div class="result-items-list" *ngIf="personResults.length > 0">
+        <div class="result-item" *ngFor="let person of personResults" (click)="onPersonClick(person)">
+          <div class="item-poster">
+            <img *ngIf="person.photo_url" [src]="person.photo_url" [alt]="person.full_name" class="poster-image">
+            <div class="poster-placeholder" *ngIf="!person.photo_url">
+              <i class="fas fa-user"></i>
             </div>
-            <div class="item-details">
-              <h3 class="item-title">{{ person.full_name }}</h3>
-              <div class="item-meta">
-                <span class="item-role">Actor</span>
-              </div>
-            </div>
+          </div>
+          <div class="item-details">
+            <h4 class="item-title">{{ person.full_name }}</h4>
           </div>
         </div>
       </div>
-    </ng-container>
+      <div class="no-results-box" *ngIf="personResults.length === 0">
+        No results found for "{{searchQuery}}"
+      </div>
+    </div>
+
   </div>
 </div> 
