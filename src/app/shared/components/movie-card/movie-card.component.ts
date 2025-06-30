@@ -71,6 +71,15 @@ export class MovieCardComponent {
     // Watchlist functionality handled by parent component
   }
 
+  onTrailerClick(event: Event): void {
+    event.stopPropagation(); // Prevent navigation to movie details
+    if (this.movie.trailer_url) {
+      window.open(this.movie.trailer_url, '_blank');
+    } else {
+      console.log('No trailer available for this movie');
+    }
+  }
+
   onImageError(event: any): void {
     // Hide the image element if backend image fails to load
     event.target.style.display = 'none';

@@ -40,9 +40,4 @@ export class PopularMoviesComponent implements OnInit {
   trackByMovieId(index: number, movie: Movie): any {
     return movie.id;
   }
-
-  onMovieClick(movie: Movie): void {
-    // Handle movie click - navigate to movie detail or add to watchlist
-    console.log('Movie clicked:', movie);
-  }
 }

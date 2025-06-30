@@ -1,15 +1,20 @@
 <section class="popular-movies-section">
   <div class="section-header">
-    <h2 class="section-title">Popular Movies</h2>
-    <p class="section-subtitle">Trending now on IMDb</p>
+    <h2 class="section-title">
+      <span class="title-text">Top picks</span>
+      <span class="title-arrow">→</span>
+    </h2>
+    <p class="section-subtitle">TV shows and movies just for you</p>
   </div>
 
   <div class="movies-container" *ngIf="!loading && !error">
-    <div class="movies-grid">
+    <div class="movies-carousel">
       <app-movie-card
         *ngFor="let movie of popularMovies; trackBy: trackByMovieId"
         [movie]="movie"
-        (click)="onMovieClick(movie)">
+        [showRating]="true"
+        [showYear]="false"
+        class="carousel-card">
       </app-movie-card>
     </div>
   </div>

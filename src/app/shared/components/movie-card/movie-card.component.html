@@ -1,5 +1,6 @@
-<div class="movie-card" [routerLink]="['/movie', movie.id]">
-  <div class="movie-poster">
+<div class="movie-card">
+  <!-- Poster Image Section -->
+  <div class="movie-poster" [routerLink]="['/movie', movie.id]">
     <img
       [src]="getPosterUrl()"
       [alt]="movie.title + ' poster'"
@@ -8,35 +9,53 @@
       (error)="onImageError($event)"
       loading="lazy">
 
-    <!-- Rating Badge -->
-    <div class="rating-badge" *ngIf="movie.imdb_score">
-      <svg class="star-icon" width="12" height="12" viewBox="0 0 24 24">
-        <path fill="#f5c518" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-      </svg>
-      <span class="rating-text">{{ getFormattedRating() }}</span>
-    </div>
-
-    <!-- Watchlist Button -->
-    <button class="watchlist-btn"
+    <!-- Add to List Button (top-left) -->
+    <button class="add-to-list-btn"
             (click)="onWatchlistClick($event)"
-            [title]="'Add to Watchlist'"
-            [attr.aria-label]="'Add ' + movie.title + ' to watchlist'">
-      <svg width="16" height="16" viewBox="0 0 24 24">
+            [title]="'Add to List'"
+            [attr.aria-label]="'Add ' + movie.title + ' to list'">
+      <svg width="14" height="14" viewBox="0 0 24 24">
         <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
       </svg>
     </button>
   </div>
 
+  <!-- Movie Info Section -->
   <div class="movie-info">
-    <h3 class="movie-title" [title]="movie.title">{{ movie.title }}</h3>
-    <div class="movie-meta">
-      <span class="movie-year">{{ movie.year }}</span>
-      <span class="movie-runtime" *ngIf="movie.runtime_min">{{ formatRuntime(movie.runtime_min) }}</span>
+    <!-- Rating & Title Row -->
+    <div class="rating-title-section">
+      <div class="rating-display" *ngIf="movie.imdb_score">
+        <svg class="star-icon" width="16" height="16" viewBox="0 0 24 24">
+          <path fill="#f5c518" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        </svg>
+        <span class="rating-value">{{ getFormattedRating() }}</span>
+        <svg class="favorite-star" width="16" height="16" viewBox="0 0 24 24">
+          <path fill="none" stroke="#ffffff" stroke-width="1.5" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        </svg>
+      </div>
+      <h3 class="movie-title" [title]="movie.title">{{ movie.title }}</h3>
     </div>
-    <div class="movie-rating" *ngIf="movie.imdb_score">
-      <span class="rating-star">⭐</span>
-      <span class="rating-value">{{ getFormattedRating() }}</span>
-      <span class="rating-votes" *ngIf="movie.rating_count">({{ formatVotes(movie.rating_count) }})</span>
+
+    <!-- Action Buttons Row -->
+    <div class="action-buttons">
+      <button class="watchlist-button" (click)="onWatchlistClick($event)">
+        <svg class="plus-icon" width="14" height="14" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+        </svg>
+        <span class="watchlist-text">Watchlist</span>
+      </button>
+
+      <button class="trailer-button" (click)="onTrailerClick($event)">
+        <svg class="play-icon" width="14" height="14" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M8 5v14l11-7z"/>
+        </svg>
+        <span class="trailer-text">Trailer</span>
+        <svg class="info-icon" width="14" height="14" viewBox="0 0 24 24">
+          <path fill="none" stroke="currentColor" stroke-width="1.5" d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+          <path fill="none" stroke="currentColor" stroke-width="1.5" d="m9 9 3-3 3 3"/>
+          <path fill="none" stroke="currentColor" stroke-width="1.5" d="M12 6v9"/>
+        </svg>
+      </button>
     </div>
   </div>
 </div>
