@@ -1,0 +1,97 @@
+<div class="search-results-container">
+  <!-- Main Search Title -->
+  <div class="search-header">
+    <h1 class="search-title">Search "{{ searchQuery }}"</h1>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Searching...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-container" *ngIf="error && !loading">
+    <h3 class="error-title">Search Error</h3>
+    <p class="error-message">{{ error }}</p>
+    <button class="retry-button" (click)="performSearch()">Try Again</button>
+  </div>
+
+  <!-- No Results -->
+  <div class="no-results-container" *ngIf="!hasResults && !loading && !error">
+    <h3 class="no-results-title">No results found</h3>
+    <p class="no-results-message">
+      Try adjusting your search terms or search in a different category.
+    </p>
+  </div>
+
+  <!-- Results -->
+  <div class="results-container" *ngIf="hasResults && !loading">
+    
+    <!-- Titles Section -->
+    <div class="results-section" *ngIf="movieResults.length > 0">
+      <div class="section-header">
+        <h2 class="section-title">Titles</h2>
+        <button class="exact-matches-link" (click)="onExactMatches('titles')">
+          Exact matches →
+        </button>
+      </div>
+      
+      <div class="results-list">
+        <div class="result-item" 
+             *ngFor="let movie of movieResults"
+             (click)="onMovieClick(movie)">
+          <div class="result-image-container">
+            <div class="result-placeholder-image">
+              <span class="image-icon">🎬</span>
+            </div>
+          </div>
+          <div class="result-content">
+            <div class="result-main-info">
+              <h3 class="result-title">{{ movie.title }}</h3>
+              <span class="result-year" *ngIf="movie.year">{{ movie.year }}</span>
+            </div>
+            <div class="result-meta" *ngIf="movie.imdb_score">
+              <span class="result-rating">⭐ {{ movie.imdb_score }}/10</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- People Section -->
+    <div class="results-section" *ngIf="personResults.length > 0">
+      <div class="section-header">
+        <h2 class="section-title">People</h2>
+        <button class="exact-matches-link" (click)="onExactMatches('people')">
+          Exact matches →
+        </button>
+      </div>
+      
+      <div class="results-list">
+        <div class="result-item" 
+             *ngFor="let person of personResults"
+             (click)="onPersonClick(person)">
+          <div class="result-image-container">
+            <img *ngIf="person.photo_url" 
+                 [src]="person.photo_url" 
+                 [alt]="person.full_name"
+                 class="result-image">
+            <div *ngIf="!person.photo_url" class="result-placeholder-image">
+              <span class="image-icon">👤</span>
+            </div>
+          </div>
+          <div class="result-content">
+            <div class="result-main-info">
+              <h3 class="result-title">{{ person.full_name }}</h3>
+            </div>
+            <div class="result-meta">
+              <span class="result-subtitle">Actor</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div> 

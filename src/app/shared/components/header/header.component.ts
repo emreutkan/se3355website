@@ -1,22 +1,24 @@
 import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { Subject, takeUntil, interval } from 'rxjs';
+import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
 import { LanguageService } from '../../services/language.service';
 import { AuthService } from '../../services/auth.service';
-import { MovieService } from '../../services/movie.service';
 import { UserService } from '../../services/user.service';
+import { MovieService } from '../../services/movie.service';
 import {User} from '../../models/user.model';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+  private searchInputSubject = new Subject<string>();
 
   isLoggedIn = false;
   userProfile: User | null = null;
@@ -24,6 +26,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
   showLanguageDropdown = false;
   showUserDropdown = false;
   watchlistCount = 0;
+
+  // Search functionality
+  searchQuery = '';
+  selectedSearchType: 'all' | 'title' | 'people' = 'all';
+  showTypeahead = false;
+  typeaheadSuggestions: Array<{
+    id: string;
+    type: 'movie' | 'actor';
+    title: string;
+    year?: number;
+    image_url?: string;
+  }> = [];
 
   // System health monitoring
   systemHealth: 'healthy' | 'degraded' | 'down' | 'unknown' = 'unknown';
@@ -38,6 +52,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   constructor(
     private languageService: LanguageService,
     private authService: AuthService,
+    private movieService: MovieService,
     private router: Router
   ) {}
 
@@ -48,7 +63,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
       .subscribe(user => {
         this.isLoggedIn = !!user;
         this.userProfile = user;
-
       });
 
     // Subscribe to language changes
@@ -58,7 +72,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.currentLanguage = language;
       });
 
-
+    // Setup typeahead search with debouncing
+    this.searchInputSubject
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(query => {
+        this.performTypeaheadSearch(query);
+      });
   }
 
   ngOnDestroy() {
@@ -80,15 +103,72 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return 'User';
   }
 
+  // ================== SEARCH FUNCTIONALITY ==================
 
+  onSearchInput(event: any) {
+    const query = event.target.value;
+    this.searchQuery = query;
+    
+    if (query.length >= 3) {
+      this.searchInputSubject.next(query);
+    } else {
+      this.typeaheadSuggestions = [];
+      this.showTypeahead = false;
+    }
+  }
+
+  performTypeaheadSearch(query: string) {
+    if (query.length < 3) {
+      this.typeaheadSuggestions = [];
+      return;
+    }
+
+    this.movieService.searchTypeahead(query).subscribe({
+      next: (response) => {
+        this.typeaheadSuggestions = response.suggestions;
+        this.showTypeahead = this.typeaheadSuggestions.length > 0;
+      },
+      error: (error) => {
+        console.error('Typeahead search error:', error);
+        this.typeaheadSuggestions = [];
+        this.showTypeahead = false;
+      }
+    });
+  }
+
+  selectSuggestion(suggestion: any) {
+    this.searchQuery = suggestion.title;
+    this.showTypeahead = false;
+    this.typeaheadSuggestions = [];
+    
+    // Navigate based on suggestion type
+    if (suggestion.type === 'movie') {
+      this.router.navigate(['/movie', suggestion.id]);
+    } else if (suggestion.type === 'actor') {
+      this.router.navigate(['/actor', suggestion.id]);
+    }
+  }
+
+  onSearchBlur() {
+    // Delay hiding to allow click on suggestions
+    setTimeout(() => {
+      this.showTypeahead = false;
+    }, 200);
+  }
 
   onSearch(query: string) {
     if (query.trim()) {
       this.router.navigate(['/search'], {
-        queryParams: { q: query.trim(), type: 'all' }
+        queryParams: { 
+          q: query.trim(), 
+          type: this.selectedSearchType 
+        }
       });
     }
+    this.showTypeahead = false;
   }
+
+  // ================== EXISTING FUNCTIONALITY ==================
 
   onSignIn() {
     this.router.navigate(['/auth/login']);
@@ -170,12 +250,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (target.closest('.search-container') || target.closest('.typeahead-dropdown')) {
+      return;
+    }
+
     // Close all dropdowns when clicking outside
     this.showLanguageDropdown = false;
     this.showUserDropdown = false;
     this.showSystemStatus = false;
+    this.showTypeahead = false;
   }
-
 
   toggleSystemStatus() {
     this.showSystemStatus = !this.showSystemStatus;
@@ -199,17 +283,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
     switch (this.systemHealth) {
       case 'healthy': return 'All systems operational';
       case 'degraded': return 'Some services degraded';
-      case 'down': return 'System unavailable';
-      default: return 'Status unknown';
+      case 'down': return 'Service unavailable';
+      default: return 'Checking status...';
     }
   }
 
   getHealthStatusIcon(): string {
     switch (this.systemHealth) {
-      case 'healthy': return '✅';
-      case 'degraded': return '⚠️';
-      case 'down': return '❌';
-      default: return '❓';
+      case 'healthy': return '✓';
+      case 'degraded': return '⚠';
+      case 'down': return '✗';
+      default: return '?';
     }
   }
 }

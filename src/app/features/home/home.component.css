@@ -1,23 +1,15 @@
 /* IMDb Home Page - Clean Design */
 .home-container {
   min-height: 100vh;
-  background-color: #0f1419;
   color: #ffffff;
 }
 
-/* Hero Section */
-.hero-section {
-  margin-bottom: 40px;
-}
 
-/* Content Sections */
-.content-section {
-  padding: 32px 0;
-  background-color: #1a1a1a;
-}
+.hero-section{
+  max-width: 80%;
+  margin: 0 auto;
 
-.content-section:nth-child(even) {
-  background-color: #0f1419;
+  text-align: center;
 }
 
 .container {
