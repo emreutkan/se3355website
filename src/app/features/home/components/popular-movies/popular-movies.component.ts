@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { MovieService } from '../../../../shared/services/movie.service';
 import { Movie } from '../../../../shared/models/movie.model';
 import { MovieCardComponent } from '../../../../shared/components/movie-card/movie-card.component';
+import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-popular-movies',
   standalone: true,
-  imports: [CommonModule, MovieCardComponent],
+  imports: [CommonModule, MovieCardComponent, TranslatePipe],
   templateUrl: './popular-movies.component.html',
   styleUrl: './popular-movies.component.css'
 })

@@ -6,11 +6,12 @@ import { MovieService } from '../../services/movie.service';
 import { WatchlistService } from '../../services/watchlist.service';
 import { Observable, of } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-movie-card',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TranslatePipe],
   templateUrl: './movie-card.component.html',
   styleUrls: ['./movie-card.component.css']
 })

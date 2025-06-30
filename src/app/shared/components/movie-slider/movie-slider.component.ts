@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Movie } from '../../models/movie.model';
 import { LanguageService } from '../../services/language.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-movie-slider',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TranslatePipe],
   templateUrl: './movie-slider.component.html',
   styleUrls: ['./movie-slider.component.css']
 })
@@ -124,10 +125,6 @@ export class MovieSliderComponent implements OnInit, OnDestroy {
 
   onLearnMore(movie: Movie) {
     // Navigate to movie details page
-  }
-
-  translate(key: string): string {
-    return this.languageService.translate(key);
   }
 
   getRatingStars(rating: number): number[] {

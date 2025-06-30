@@ -12,7 +12,7 @@
       <!-- Menu button (hamburger) -->
       <button class="navbar__menu-button">
         <i class="fas fa-bars"></i>
-        <span class="menu-text">Menu</span>
+        <span class="menu-text">{{ 'header.menu' | translate }}</span>
       </button>
     </div>
 
@@ -21,7 +21,7 @@
       <div class="search-container">
         <!-- Search Category Dropdown -->
         <div class="search-category-selector" (click)="toggleSearchCategoryDropdown()">
-          <span class="selected-category-name">{{ selectedSearchCategory.name }}</span>
+          <span class="selected-category-name">{{ selectedSearchCategory.name | translate }}</span>
           <svg class="dropdown-arrow" viewBox="0 0 24 24"><path d="M7,10L12,15L17,10H7Z"/></svg>
 
           <div class="search-category-dropdown" *ngIf="showSearchCategoryDropdown">
@@ -29,7 +29,7 @@
                  class="search-category-item"
                  (click)="selectSearchCategory(category)">
               <i [class]="category.icon"></i>
-              <span>{{ category.name }}</span>
+              <span>{{ category.name | translate }}</span>
             </div>
           </div>
         </div>
@@ -39,7 +39,7 @@
             type="text"
             #searchInput
             [(ngModel)]="searchQuery"
-            placeholder="Search IMDb"
+            [placeholder]="'header.search.placeholder' | translate"
             class="search-input"
             (input)="onSearchInput($event)"
             (keyup.enter)="onSearch()"
@@ -59,7 +59,7 @@
 
             <!-- Titles -->
             <ng-container *ngIf="typeaheadResults.titles.length > 0">
-              <div class="typeahead-category-header">Titles</div>
+              <div class="typeahead-category-header">{{ 'header.search.titles' | translate }}</div>
               <div class="typeahead-item"
                    *ngFor="let suggestion of typeaheadResults.titles"
                    (mousedown)="selectSuggestion(suggestion)">
@@ -77,7 +77,7 @@
 
             <!-- Celebs -->
             <ng-container *ngIf="typeaheadResults.celebs.length > 0">
-              <div class="typeahead-category-header">Celebs</div>
+              <div class="typeahead-category-header">{{ 'header.search.celebs' | translate }}</div>
               <div class="typeahead-item"
                    *ngFor="let suggestion of typeaheadResults.celebs"
                    (mousedown)="selectSuggestion(suggestion)">
@@ -102,38 +102,38 @@
     <div class="navbar__right">
       <div class="navbar__actions">
         <!-- IMDbPro -->
-        <a href="#" class="navbar__link--imdb-pro">IMDbPro</a>
+        <a href="#" class="navbar__link--imdb-pro">{{ 'header.imdbpro' | translate }}</a>
 
         <!-- Divider -->
         <div class="navbar__divider"></div>
 
         <!-- Watchlist -->
         <a routerLink="/watchlist" class="nav-link" *ngIf="isLoggedIn$ | async">
-          Watchlist
+          {{ 'header.watchlist' | translate }}
           <ng-container *ngIf="watchlistCount$ | async as count">
             <span *ngIf="count > 0" class="watchlist-count">{{ count }}</span>
           </ng-container>
         </a>
 
         <!-- User menu -->
-        <div *ngIf="isLoggedIn$ | async; else loginRegister" 
+        <div *ngIf="isLoggedIn$ | async; else loginRegister"
              class="user-menu"
              (mouseenter)="showUserDropdown = true"
              (mouseleave)="showUserDropdown = false">
-          
+
           <a class="nav-link">{{ (user$ | async)?.full_name }}</a>
           <div class="user-dropdown" *ngIf="showUserDropdown">
-            <a routerLink="/profile" class="dropdown-link">Profile</a>
-            <a (click)="onLogout()" class="dropdown-link">Logout</a>
+            <a routerLink="/profile" class="dropdown-link">{{ 'header.profile' | translate }}</a>
+            <a (click)="onLogout()" class="dropdown-link">{{ 'auth.logout' | translate }}</a>
           </div>
         </div>
 
         <ng-template #loginRegister>
-          <a routerLink="/auth/login" class="nav-link">Sign In</a>
+          <a routerLink="/auth/login" class="nav-link">{{ 'header.signin' | translate }}</a>
         </ng-template>
 
         <!-- Language selector -->
-        <div class="navbar__language" 
+        <div class="navbar__language"
              (mouseenter)="showLanguageDropdown = true"
              (mouseleave)="showLanguageDropdown = false">
           <div class="language-selector-trigger" tabindex="0">

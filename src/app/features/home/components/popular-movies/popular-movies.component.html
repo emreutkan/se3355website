@@ -1,10 +1,10 @@
 <section class="popular-movies-section">
   <div class="section-header">
     <h2 class="section-title">
-      <span class="title-text">Top picks</span>
+      <span class="title-text">{{ 'popular.title' | translate }}</span>
       <span class="title-arrow">→</span>
     </h2>
-    <p class="section-subtitle">TV shows and movies just for you</p>
+    <p class="section-subtitle">{{ 'popular.subtitle' | translate }}</p>
   </div>
 
   <div class="movies-container" *ngIf="!loading && !error">
@@ -21,12 +21,12 @@
 
   <div class="loading-state" *ngIf="loading">
     <div class="loading-spinner"></div>
-    <p>Loading popular movies...</p>
+    <p>{{ 'popular.loading' | translate }}</p>
   </div>
 
   <div class="error-state" *ngIf="error && !loading">
     <div class="error-icon">⚠️</div>
     <p class="error-message">{{ error }}</p>
-    <button class="retry-button" (click)="loadPopularMovies()">Try Again</button>
+    <button class="retry-button" (click)="loadPopularMovies()">{{ 'home.retry' | translate }}</button>
   </div>
 </section>

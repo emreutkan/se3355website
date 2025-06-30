@@ -9,11 +9,12 @@ import { UserService } from '../../services/user.service';
 import { MovieService } from '../../services/movie.service';
 import { User } from '../../models/user.model';
 import { WatchlistService } from '../../services/watchlist.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, TranslatePipe],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
@@ -38,9 +39,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   searchQuery = '';
   showSearchCategoryDropdown = false;
   searchCategories = [
-    { key: 'all', name: 'All', icon: 'fas fa-search' },
-    { key: 'titles', name: 'Titles', icon: 'fas fa-film' },
-    { key: 'celebs', name: 'Celebs', icon: 'fas fa-user-friends' }
+    { key: 'all', name: 'search.all', icon: 'fas fa-search' },
+    { key: 'titles', name: 'header.search.titles', icon: 'fas fa-film' },
+    { key: 'celebs', name: 'header.search.celebs', icon: 'fas fa-user-friends' }
   ];
   selectedSearchCategory = this.searchCategories[0];
   showTypeahead = false;
@@ -140,16 +141,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
       return;
     }
 
-    let searchType = this.selectedSearchCategory.key;
-    if (searchType === 'titles') searchType = 'title';
-    if (searchType === 'celebs') searchType = 'people';
-
-    this.movieService.search(query, searchType as any).subscribe({
+    this.movieService.searchTypeahead(query).subscribe({
       next: (response) => {
+        // The typeahead response needs to be mapped to the existing titles/celebs structure
+        const titles = response.suggestions.filter(s => s.type === 'movie');
+        const celebs = response.suggestions.filter(s => s.type === 'actor');
+
         this.typeaheadResults = {
-          titles: response.results.titles || [],
-          celebs: response.results.people || []
+          titles: titles.map(t => ({ id: t.id, title: t.title, year: t.year, media_type: 'movie' })),
+          celebs: celebs.map(c => ({ id: c.id, full_name: c.title, photo_url: c.image_url, media_type: 'person' }))
         };
+
         this.showTypeahead = this.typeaheadResults.titles.length > 0 || this.typeaheadResults.celebs.length > 0;
       },
       error: (error) => {
@@ -261,10 +263,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   switchLanguage(languageCode: string) {
     this.languageService.setLanguage(languageCode);
     this.showLanguageDropdown = false;
-  }
-
-  translate(key: string): string {
-    return this.languageService.translate(key);
   }
 
   getCurrentLanguageFlag(): string {

@@ -8,12 +8,13 @@ import {MovieService} from '../../shared/services/movie.service';
 import {LanguageService} from '../../shared/services/language.service';
 import { PopularMoviesComponent } from './components/popular-movies/popular-movies.component';
 import { AuthService } from '../../shared/services/auth.service';
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule, MovieCardComponent, MovieSliderComponent, PopularMoviesComponent],
+  imports: [CommonModule, RouterModule, MovieCardComponent, MovieSliderComponent, PopularMoviesComponent, TranslatePipe],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
@@ -107,10 +108,6 @@ export class HomeComponent implements OnInit {
   //     }
   //   });
   // }
-
-  translate(key: string): string {
-    return this.languageService.translate(key);
-  }
 
   onRetry() {
     this.loadAllMovies();

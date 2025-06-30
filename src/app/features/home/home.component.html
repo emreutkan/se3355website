@@ -16,8 +16,8 @@
   <section class="content-section" *ngIf="topRatedMovies.length > 0">
     <div class="container">
       <div class="section-header">
-        <h2 class="section-title">Top Rated Movies</h2>
-        <p class="section-subtitle">Critics' favorites</p>
+        <h2 class="section-title">{{ 'home.toprated.title' | translate }}</h2>
+        <p class="section-subtitle">{{ 'home.toprated.subtitle' | translate }}</p>
       </div>
       <div class="movies-grid">
         <app-movie-card
@@ -32,7 +32,7 @@
   <!-- Loading State -->
   <div class="loading-container" *ngIf="isLoading">
     <div class="loading-spinner"></div>
-    <p>Loading movies...</p>
+    <p>{{ 'home.loading' | translate }}</p>
   </div>
 
   <!-- Error State -->
@@ -40,7 +40,7 @@
     <div class="error-content">
       <div class="error-icon">⚠️</div>
       <h3>{{ error }}</h3>
-      <button class="retry-button" (click)="onRetry()">Try Again</button>
+      <button class="retry-button" (click)="onRetry()">{{ 'home.retry' | translate }}</button>
     </div>
   </div>
 </div>

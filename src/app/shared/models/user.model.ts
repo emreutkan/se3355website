@@ -1,15 +1,24 @@
-
 export interface User {
   id: string; // UUID
   email: string;
   full_name: string;
   country: string; // e.g. 'US', 'UK'
   city: string;
-  auth_provider: string; // e.g. 'local'
+  photo_url?: string;
+  auth_provider?: 'local' | 'google';
+  created_at?: string;
+}
+
+export interface AuthUser {
+  id: number;
+  email: string;
+  full_name: string;
+  country: string;
+  city: string;
 }
 
 export interface AuthResponse {
-  user: User;
+  user: AuthUser;
   access_token: string;
   refresh_token: string;
 }
@@ -23,10 +32,9 @@ export interface RegisterData {
   photo_url?: string;
 }
 
-
 export interface RegisterResponse {
   msg: string;
-  user: User;
+  user: AuthUser;
 }
 
 export interface LoginCredentials {

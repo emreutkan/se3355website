@@ -55,7 +55,8 @@ export class AuthService {
   }
 
   register(userData: RegisterData): Observable<RegisterResponse> {
-    return this.http.post<RegisterResponse>(`${apiUrl}/auth/register`, userData)
+    const { photo_url, ...dataToSend } = userData;
+    return this.http.post<RegisterResponse>(`${apiUrl}/auth/register`, dataToSend)
       .pipe(
         catchError(error => this.handleAuthError(error))
       );
@@ -151,8 +152,9 @@ export class AuthService {
   private handleAuthSuccess(response: AuthResponse): void {
     localStorage.setItem('imdb-token', response.access_token);
     localStorage.setItem('imdb-refresh-token', response.refresh_token);
-    localStorage.setItem('imdb-user', JSON.stringify(response.user));
-    this.currentUserSubject.next(response.user);
+    this.getCurrentUserProfile().subscribe({
+      error: (err) => console.error('Failed to fetch full user profile after login', err)
+    });
   }
 
   private handleAuthError(error: any): Observable<never> {

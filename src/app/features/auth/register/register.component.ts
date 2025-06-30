@@ -5,11 +5,12 @@ import { AuthService } from '../../../shared/services/auth.service';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Country, LocationService } from '../../../shared/services/location.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, TranslatePipe],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css']
 })
@@ -114,7 +115,8 @@ export class RegisterComponent implements OnInit {
     }
 
     this.isLoading = true;
-    this.authService.register(this.registerForm.value).subscribe({
+    const { photo, ...formData } = this.registerForm.value;
+    this.authService.register(formData).subscribe({
       next: () => {
         this.router.navigate(['/auth/login']);
       },

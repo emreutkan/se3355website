@@ -13,6 +13,7 @@ import {
 } from '../types/api.responses';
 import {SortOption} from '../models/movie.model';
 import { Movie } from '../models/movie.model';
+import {LanguageService} from './language.service';
 
 
 @Injectable({
@@ -20,6 +21,7 @@ import { Movie } from '../models/movie.model';
 })
 export class MovieService {
   private http = inject(HttpClient);
+  private languageService = inject(LanguageService);
 
   private readonly apiUrl = 'http://localhost:5000/api';
 
@@ -39,7 +41,9 @@ export class MovieService {
   // ================== MOVIES ==================
 
   getPopularMovies(limit = 10): Observable<GetPopularMoviesResponse> {
-    return this.http.get<GetPopularMoviesResponse>(`${apiUrl}/movies/popular?limit=${limit}`)
+    const lang = this.languageService.getCurrentLanguage();
+    const params = new HttpParams().set('limit', limit.toString()).set('lang', lang);
+    return this.http.get<GetPopularMoviesResponse>(`${apiUrl}/movies/popular`, { params })
       .pipe(catchError(this.handleError));
   }
 
@@ -51,7 +55,8 @@ export class MovieService {
     minRating?: number,
     size = 20
   ): Observable<GetMoviesResponse> {
-    let params = `page=${page}&size=${size}&sort=${sort}`;
+    const lang = this.languageService.getCurrentLanguage();
+    let params = `page=${page}&size=${size}&sort=${sort}&lang=${lang}`;
     if (search) params += `&search=${encodeURIComponent(search)}`;
     if (year) params += `&year=${year}`;
     if (minRating) params += `&min_rating=${minRating}`;
@@ -62,7 +67,9 @@ export class MovieService {
 
   getMovieDetails(movieId: string): Observable<Movie> {
     const headers = this.getAuthHeaders();
-    return this.http.get<{ movie: Movie }>(`${apiUrl}/movies/${movieId}`, { headers }).pipe(
+    const lang = this.languageService.getCurrentLanguage();
+    const params = new HttpParams().set('lang', lang);
+    return this.http.get<{ movie: Movie }>(`${apiUrl}/movies/${movieId}`, { headers, params }).pipe(
       map(response => response.movie)
     );
   }

@@ -13,8 +13,8 @@
       <!-- Add to List Button (top-left) -->
       <button class="add-to-list-btn"
               (click)="toggleWatchlist($event)"
-              [title]="'Add to List'"
-              [attr.aria-label]="'Add ' + movie.title + ' to list'">
+              [title]="(isInWatchlist$ | async) ? ('movie.removefromwatchlist' | translate) : ('home.addwatchlist' | translate)"
+              [attr.aria-label]="(isInWatchlist$ | async) ? ('movie.removefromwatchlist' | translate) : ('home.addwatchlist' | translate)">
         <svg width="14" height="14" viewBox="0 0 24 24">
           <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
         </svg>
@@ -40,8 +40,12 @@
       <!-- Action Buttons Row -->
       <div class="action-buttons">
         <button class="watchlist-button" (click)="toggleWatchlist($event)">
-          <span *ngIf="isInWatchlist$ | async">+</span>
-          <span *ngIf="!(isInWatchlist$ | async)">+</span>
+          <ng-container *ngIf="(isInWatchlist$ | async); else addToWatchlist">
+            <span class="watchlist-text">{{ 'movie.inwatchlist' | translate }}</span>
+          </ng-container>
+          <ng-template #addToWatchlist>
+            <span class="watchlist-text">{{ 'home.addwatchlist' | translate }}</span>
+          </ng-template>
         </button>
 
         <button class="trailer-button" (click)="onTrailerClick($event)">

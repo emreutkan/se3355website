@@ -21,6 +21,11 @@ export class LanguageService {
       'header.movies': 'Movies',
       'header.tvshows': 'TV Shows',
       'header.celebrities': 'Celebrities',
+      'header.menu': 'Menu',
+      'header.imdbpro': 'IMDbPro',
+      'header.profile': 'Profile',
+      'header.search.titles': 'Titles',
+      'header.search.celebs': 'Celebs',
 
       // Home page
       'home.popular': 'Popular Movies',
@@ -32,6 +37,14 @@ export class LanguageService {
       'home.addwatchlist': 'Add to Watchlist',
       'home.loading': 'Loading movies...',
       'home.viewall': 'View All',
+      'home.toprated.title': 'Top Rated Movies',
+      'home.toprated.subtitle': 'Critics\\\' favorites',
+      'home.retry': 'Try Again',
+
+      //popular movies
+      'popular.title': 'Top picks',
+      'popular.subtitle': 'TV shows and movies just for you',
+      'popular.loading': 'Loading popular movies...',
 
       // Movie details
       'movie.director': 'Dir',
@@ -43,6 +56,9 @@ export class LanguageService {
       'movie.languages': 'Languages',
       'movie.status': 'Status',
       'movie.ratemovie': 'Rate Movie',
+      'movie.more_info': 'More Info',
+      'movie.inwatchlist': 'In Watchlist',
+      'movie.removefromwatchlist': 'Remove from Watchlist',
 
       // Search
       'search.all': 'All',
@@ -97,7 +113,26 @@ export class LanguageService {
       'auth.error.email.invalid': 'Please enter a valid email',
       'auth.error.password.minlength': 'Password must be at least 8 characters',
       'auth.error.password.mismatch': 'Passwords do not match',
-      'auth.error.city.minlength': 'City must be at least 2 characters'
+      'auth.error.city.minlength': 'City must be at least 2 characters',
+      'auth.email_or_phone': 'Email or mobile phone number',
+      'auth.password_assistance': 'Password assistance',
+      'auth.keep_me_signed_in': 'Keep me signed in.',
+      'auth.details': 'Details',
+      'auth.new_to_imdb': 'New to IMDb?',
+      'auth.create_your_imdb_account': 'Create your IMDb account',
+      'auth.create_account_title': 'Create Account',
+      'auth.profile_photo_optional': 'Profile Photo (Optional)',
+      'auth.upload_photo': 'Upload Photo',
+      'auth.full_name_optional': 'Full Name (Optional)',
+      'auth.full_name_required': 'Full name is required.',
+      'auth.country_optional': 'Country (Optional)',
+      'auth.select_country': 'Select Country',
+      'auth.city_optional': 'City (Optional)',
+      'auth.select_city': 'Select City',
+      'auth.confirm_password_required': 'Please confirm your password.',
+      'auth.passwords_do_not_match': 'Passwords do not match.',
+      'auth.already_have_account': 'Already have an account?',
+      'auth.signin_link': 'Sign-In'
     },
     tr: {
       // Header
@@ -107,6 +142,11 @@ export class LanguageService {
       'header.movies': 'Filmler',
       'header.tvshows': 'TV Dizileri',
       'header.celebrities': 'Ünlüler',
+      'header.menu': 'Menü',
+      'header.imdbpro': 'IMDbPro',
+      'header.profile': 'Profil',
+      'header.search.titles': 'Başlıklar',
+      'header.search.celebs': 'Ünlüler',
 
       // Home page
       'home.popular': 'Popüler Filmler',
@@ -118,6 +158,14 @@ export class LanguageService {
       'home.addwatchlist': 'İzleme Listesine Ekle',
       'home.loading': 'Filmler yükleniyor...',
       'home.viewall': 'Tümünü Gör',
+      'home.toprated.title': 'En Çok Oy Alan Filmler',
+      'home.toprated.subtitle': 'Eleştirmenlerin favorileri',
+      'home.retry': 'Tekrar Dene',
+
+      //popular movies
+      'popular.title': 'En Beğenilenler',
+      'popular.subtitle': 'Size özel diziler ve filmler',
+      'popular.loading': 'Popüler filmler yükleniyor...',
 
       // Movie details
       'movie.director': 'Yön',
@@ -129,6 +177,9 @@ export class LanguageService {
       'movie.languages': 'Diller',
       'movie.status': 'Durum',
       'movie.ratemovie': 'Filmi Puanla',
+      'movie.more_info': 'Daha Fazla Bilgi',
+      'movie.inwatchlist': 'İzleme Listesinde',
+      'movie.removefromwatchlist': 'İzleme Listesinden Çıkar',
 
       // Search
       'search.all': 'Tümü',
@@ -183,7 +234,26 @@ export class LanguageService {
       'auth.error.email.invalid': 'Lütfen geçerli bir e-posta girin',
       'auth.error.password.minlength': 'Şifre en az 8 karakter olmalı',
       'auth.error.password.mismatch': 'Şifreler eşleşmiyor',
-      'auth.error.city.minlength': 'Şehir en az 2 karakter olmalı'
+      'auth.error.city.minlength': 'Şehir en az 2 karakter olmalı',
+      'auth.email_or_phone': 'E-posta veya cep telefonu numarası',
+      'auth.password_assistance': 'Şifre yardımı',
+      'auth.keep_me_signed_in': 'Oturumumu açık tut.',
+      'auth.details': 'Detaylar',
+      'auth.new_to_imdb': 'IMDb\'de yeni misiniz?',
+      'auth.create_your_imdb_account': 'IMDb hesabınızı oluşturun',
+      'auth.create_account_title': 'Hesap Oluştur',
+      'auth.profile_photo_optional': 'Profil Fotoğrafı (İsteğe bağlı)',
+      'auth.upload_photo': 'Fotoğraf Yükle',
+      'auth.full_name_optional': 'Tam Ad (İsteğe bağlı)',
+      'auth.full_name_required': 'Tam ad gerekli.',
+      'auth.country_optional': 'Ülke (İsteğe bağlı)',
+      'auth.select_country': 'Ülke Seç',
+      'auth.city_optional': 'Şehir (İsteğe bağlı)',
+      'auth.select_city': 'Şehir Seç',
+      'auth.confirm_password_required': 'Lütfen şifrenizi onaylayın.',
+      'auth.passwords_do_not_match': 'Şifreler eşleşmiyor.',
+      'auth.already_have_account': 'Zaten bir hesabınız var mı?',
+      'auth.signin_link': 'Giriş Yap'
     }
   };
 

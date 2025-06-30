@@ -54,15 +54,15 @@
           <div class="movie-actions">
             <button class="action-btn primary" (click)="onWatchTrailer(currentMovie)">
               <span>▶</span>
-              Watch Trailer
+              {{ 'home.watchtrailer' | translate }}
             </button>
             <button class="action-btn secondary" (click)="onAddToWatchlist(currentMovie)">
               <span>+</span>
-              Watchlist
+              {{ 'header.watchlist' | translate }}
             </button>
             <button class="action-btn tertiary" [routerLink]="['/movie', currentMovie.id]">
               <span>ⓘ</span>
-              More Info
+              {{ 'movie.more_info' | translate }}
             </button>
           </div>
         </div>
