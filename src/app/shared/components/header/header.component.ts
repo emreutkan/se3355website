@@ -29,15 +29,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   // Search functionality
   searchQuery = '';
-  selectedSearchType: 'all' | 'title' | 'people' = 'all';
+  showSearchCategoryDropdown = false;
+  searchCategories = [
+    { key: 'all', name: 'All', icon: 'fas fa-search' },
+    { key: 'titles', name: 'Titles', icon: 'fas fa-film' },
+    { key: 'celebs', name: 'Celebs', icon: 'fas fa-user-friends' }
+  ];
+  selectedSearchCategory = this.searchCategories[0];
   showTypeahead = false;
-  typeaheadSuggestions: Array<{
-    id: string;
-    type: 'movie' | 'actor';
-    title: string;
-    year?: number;
-    image_url?: string;
-  }> = [];
+  typeaheadResults: {
+    titles: any[],
+    celebs: any[]
+  } = { titles: [], celebs: [] };
 
   // System health monitoring
   systemHealth: 'healthy' | 'degraded' | 'down' | 'unknown' = 'unknown';
@@ -108,44 +111,52 @@ export class HeaderComponent implements OnInit, OnDestroy {
   onSearchInput(event: any) {
     const query = event.target.value;
     this.searchQuery = query;
-    
-    if (query.length >= 3) {
+
+    if (query.length > 1) {
       this.searchInputSubject.next(query);
     } else {
-      this.typeaheadSuggestions = [];
+      this.typeaheadResults = { titles: [], celebs: [] };
       this.showTypeahead = false;
     }
   }
 
   performTypeaheadSearch(query: string) {
-    if (query.length < 3) {
-      this.typeaheadSuggestions = [];
+    if (query.length < 2) {
+      this.typeaheadResults = { titles: [], celebs: [] };
+      this.showTypeahead = false;
       return;
     }
 
-    this.movieService.searchTypeahead(query).subscribe({
+    let searchType = this.selectedSearchCategory.key;
+    if (searchType === 'titles') searchType = 'title';
+    if (searchType === 'celebs') searchType = 'people';
+
+    this.movieService.search(query, searchType as any).subscribe({
       next: (response) => {
-        this.typeaheadSuggestions = response.suggestions;
-        this.showTypeahead = this.typeaheadSuggestions.length > 0;
+        this.typeaheadResults = {
+          titles: response.results.titles || [],
+          celebs: response.results.people || []
+        };
+        this.showTypeahead = this.typeaheadResults.titles.length > 0 || this.typeaheadResults.celebs.length > 0;
       },
       error: (error) => {
         console.error('Typeahead search error:', error);
-        this.typeaheadSuggestions = [];
+        this.typeaheadResults = { titles: [], celebs: [] };
         this.showTypeahead = false;
       }
     });
   }
 
   selectSuggestion(suggestion: any) {
-    this.searchQuery = suggestion.title;
+    this.searchQuery = '';
     this.showTypeahead = false;
-    this.typeaheadSuggestions = [];
-    
+    this.typeaheadResults = { titles: [], celebs: [] };
+
     // Navigate based on suggestion type
-    if (suggestion.type === 'movie') {
+    if (suggestion.media_type === 'movie' || suggestion.media_type === 'tv' || suggestion.title) {
       this.router.navigate(['/movie', suggestion.id]);
-    } else if (suggestion.type === 'actor') {
-      this.router.navigate(['/actor', suggestion.id]);
+    } else if (suggestion.media_type === 'person' || suggestion.full_name) {
+      this.router.navigate(['/person', suggestion.id]);
     }
   }
 
@@ -156,16 +167,32 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }, 200);
   }
 
-  onSearch(query: string) {
-    if (query.trim()) {
+  onSearch() {
+    if (this.searchQuery.trim()) {
       this.router.navigate(['/search'], {
-        queryParams: { 
-          q: query.trim(), 
-          type: this.selectedSearchType 
+        queryParams: {
+          q: this.searchQuery.trim(),
+          category: this.selectedSearchCategory.key
         }
       });
+      this.searchQuery = '';
     }
     this.showTypeahead = false;
+  }
+
+  // ================== SEARCH CATEGORY DROPDOWN ==================
+
+  toggleSearchCategoryDropdown() {
+    this.showSearchCategoryDropdown = !this.showSearchCategoryDropdown;
+  }
+
+  selectSearchCategory(category: any) {
+    this.selectedSearchCategory = category;
+    this.showSearchCategoryDropdown = false;
+    // Trigger a new search if there's already a query
+    if (this.searchQuery.length > 0) {
+      this.performTypeaheadSearch(this.searchQuery);
+    }
   }
 
   // ================== EXISTING FUNCTIONALITY ==================
@@ -254,11 +281,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (target.closest('.search-category-dropdown-trigger') || target.closest('.search-category-dropdown')) {
+      return;
+    }
+
     // Close all dropdowns when clicking outside
     this.showLanguageDropdown = false;
     this.showUserDropdown = false;
     this.showSystemStatus = false;
-    this.showTypeahead = false;
+    this.showSearchCategoryDropdown = false;
   }
 
   toggleSystemStatus() {

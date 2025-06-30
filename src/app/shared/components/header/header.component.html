@@ -23,13 +23,21 @@
     <!-- Center - Search -->
     <div class="navbar__search">
       <div class="search-container">
-        <div class="search-category-selector">
-          <select class="search-category" [(ngModel)]="selectedSearchType">
-            <option value="all">All</option>
-            <option value="title">Titles</option>
-            <option value="people">Celebs</option>
-          </select>
+        <!-- Search Category Dropdown -->
+        <div class="search-category-selector" (click)="toggleSearchCategoryDropdown()">
+          <span class="selected-category-name">{{ selectedSearchCategory.name }}</span>
+          <svg class="dropdown-arrow" viewBox="0 0 24 24"><path d="M7,10L12,15L17,10H7Z"/></svg>
+
+          <div class="search-category-dropdown" *ngIf="showSearchCategoryDropdown">
+            <div *ngFor="let category of searchCategories"
+                 class="search-category-item"
+                 (click)="selectSearchCategory(category)">
+              <i [class]="category.icon"></i>
+              <span>{{ category.name }}</span>
+            </div>
+          </div>
         </div>
+
         <div class="search-input-wrapper">
           <input
             type="text"
@@ -38,35 +46,54 @@
             placeholder="Search IMDb"
             class="search-input"
             (input)="onSearchInput($event)"
-            (keyup.enter)="onSearch(searchInput.value)"
-            (focus)="showTypeahead = true"
+            (keyup.enter)="onSearch()"
+            (focus)="onSearchInput({target: {value: searchQuery}})"
             (blur)="onSearchBlur()">
-          
-          <!-- Typeahead suggestions -->
-          <div class="typeahead-dropdown" *ngIf="showTypeahead && typeaheadSuggestions.length > 0">
-            <div class="typeahead-item" 
-                 *ngFor="let suggestion of typeaheadSuggestions"
-                 (mousedown)="selectSuggestion(suggestion)">
-              <img *ngIf="suggestion.image_url" 
-                   [src]="suggestion.image_url" 
-                   [alt]="suggestion.title"
-                   class="suggestion-image">
-              <div class="suggestion-placeholder" *ngIf="!suggestion.image_url">
-                <span class="suggestion-icon">{{ suggestion.type === 'movie' ? '��' : '👤' }}</span>
-              </div>
-              <div class="suggestion-content">
-                <div class="suggestion-title">{{ suggestion.title }}</div>
-                <div class="suggestion-meta">
-                  <span class="suggestion-type">{{ suggestion.type === 'movie' ? 'Movie' : 'Actor' }}</span>
-                  <span *ngIf="suggestion.year" class="suggestion-year">({{ suggestion.year }})</span>
+
+          <!-- Typeahead results -->
+          <div class="typeahead-dropdown" *ngIf="showTypeahead && (typeaheadResults.titles.length > 0 || typeaheadResults.celebs.length > 0)">
+
+            <!-- Titles -->
+            <ng-container *ngIf="typeaheadResults.titles.length > 0">
+              <div class="typeahead-category-header">Titles</div>
+              <div class="typeahead-item"
+                   *ngFor="let suggestion of typeaheadResults.titles"
+                   (mousedown)="selectSuggestion(suggestion)">
+                <div class="suggestion-placeholder">
+                   <i class="fas fa-film"></i>
+                </div>
+                <div class="suggestion-content">
+                  <div class="suggestion-title">{{ suggestion.title }}</div>
+                  <div class="suggestion-meta">
+                    <span>{{ suggestion.year }}</span>
+                  </div>
                 </div>
               </div>
-            </div>
+            </ng-container>
+
+            <!-- Celebs -->
+            <ng-container *ngIf="typeaheadResults.celebs.length > 0">
+              <div class="typeahead-category-header">Celebs</div>
+              <div class="typeahead-item"
+                   *ngFor="let suggestion of typeaheadResults.celebs"
+                   (mousedown)="selectSuggestion(suggestion)">
+                <img *ngIf="suggestion.photo_url"
+                     [src]="suggestion.photo_url"
+                     [alt]="suggestion.full_name"
+                     class="suggestion-image">
+                <div class="suggestion-placeholder" *ngIf="!suggestion.photo_url">
+                  <i class="fas fa-user"></i>
+                </div>
+                <div class="suggestion-content">
+                  <div class="suggestion-title">{{ suggestion.full_name }}</div>
+                </div>
+              </div>
+            </ng-container>
           </div>
         </div>
         <button
           class="search-submit"
-          (click)="onSearch(searchInput.value)">
+          (click)="onSearch()">
           <svg class="search-icon" viewBox="0 0 24 24">
             <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
           </svg>

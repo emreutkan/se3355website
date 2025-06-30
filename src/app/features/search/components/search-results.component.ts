@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { MovieService } from '../../../shared/services/movie.service';
+import { MovieCardComponent } from '../../../shared/components/movie-card/movie-card.component';
 
 interface SearchResult {
   id: string;
@@ -20,7 +21,7 @@ interface PersonResult {
 @Component({
   selector: 'app-search-results',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, MovieCardComponent],
   templateUrl: './search-results.component.html',
   styleUrls: ['./search-results.component.css']
 })
@@ -28,7 +29,7 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   searchQuery = '';
-  searchType: 'all' | 'title' | 'people' = 'all';
+  searchCategory: 'all' | 'titles' | 'celebs' = 'all';
   loading = false;
   error: string | null = null;
 
@@ -47,7 +48,7 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(params => {
         this.searchQuery = params['q'] || '';
-        this.searchType = params['type'] || 'all';
+        this.searchCategory = params['category'] || 'all';
         
         if (this.searchQuery.trim()) {
           this.performSearch();
@@ -65,8 +66,12 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
 
     this.loading = true;
     this.error = null;
+    
+    let searchType: string = this.searchCategory;
+    if (searchType === 'titles') searchType = 'title';
+    if (searchType === 'celebs') searchType = 'people';
 
-    this.movieService.search(this.searchQuery, this.searchType).subscribe({
+    this.movieService.search(this.searchQuery, searchType as any).subscribe({
       next: (response) => {
         this.movieResults = response.results.titles || [];
         this.personResults = response.results.people || [];
@@ -89,20 +94,11 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
     this.router.navigate(['/actor', person.id]);
   }
 
-  onExactMatches(type: 'titles' | 'people') {
-    this.router.navigate(['/search'], {
-      queryParams: { 
-        q: this.searchQuery,
-        type: type === 'titles' ? 'title' : 'people'
-      }
-    });
-  }
-
-  getSearchTypeDisplay(): string {
-    switch (this.searchType) {
+  getSearchCategoryDisplay(): string {
+    switch (this.searchCategory) {
       case 'all': return 'All';
-      case 'title': return 'Titles';
-      case 'people': return 'People';
+      case 'titles': return 'Titles';
+      case 'celebs': return 'People';
       default: return 'All';
     }
   }
