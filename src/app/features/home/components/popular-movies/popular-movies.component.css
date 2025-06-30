@@ -1,23 +1,25 @@
 .popular-movies-section {
-  padding: 32px 0;
-  background-color: #1a1a1a;
+  padding: 40px 0;
+  background-color: #000000;
   color: #ffffff;
 }
 
 .section-header {
-  margin-bottom: 24px;
+  margin-bottom: 32px;
   text-align: left;
+  padding: 0 20px;
 }
 
 .section-title {
-  font-size: 28px;
-  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  font-size: 32px;
+  font-weight: 700;
   color: #ffffff;
-  margin: 0 0 8px 0;
-  letter-spacing: -0.5px;
+  margin: 0 0 12px 0;
+  letter-spacing: -0.8px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .title-text {
@@ -26,46 +28,52 @@
 
 .title-arrow {
   color: #f5c518;
-  font-size: 24px;
+  font-size: 28px;
+  font-weight: 400;
 }
 
 .section-subtitle {
-  font-size: 16px;
-  color: #aaaaaa;
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  color: #b3b3b3;
   margin: 0;
   font-weight: 400;
+  line-height: 1.4;
 }
 
 .movies-container {
   width: 100%;
+  padding: 0 20px;
 }
 
 .movies-carousel {
   display: flex;
-  gap: 16px;
+  gap: 20px;
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 8px 0 16px 0;
+  padding: 12px 0 20px 0;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #404040 #1a1a1a;
 }
 
 .movies-carousel::-webkit-scrollbar {
-  height: 6px;
+  height: 8px;
 }
 
 .movies-carousel::-webkit-scrollbar-track {
-  background: #333333;
-  border-radius: 3px;
+  background: #1a1a1a;
+  border-radius: 4px;
 }
 
 .movies-carousel::-webkit-scrollbar-thumb {
-  background: #666666;
-  border-radius: 3px;
+  background: linear-gradient(90deg, #404040 0%, #606060 100%);
+  border-radius: 4px;
 }
 
 .movies-carousel::-webkit-scrollbar-thumb:hover {
-  background: #888888;
+  background: linear-gradient(90deg, #606060 0%, #808080 100%);
 }
 
 .carousel-card {
@@ -79,18 +87,18 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
+  padding: 80px 20px;
   text-align: center;
 }
 
 .loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid #333333;
-  border-top: 3px solid #f5c518;
+  width: 48px;
+  height: 48px;
+  border: 4px solid #2a2a2a;
+  border-top: 4px solid #f5c518;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 @keyframes spin {
@@ -99,9 +107,11 @@
 }
 
 .loading-state p {
-  color: #aaaaaa;
+  color: #b3b3b3;
+  font-family: 'Roboto', sans-serif;
   font-size: 16px;
   margin: 0;
+  font-weight: 400;
 }
 
 /* Error State */
@@ -110,35 +120,43 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
+  padding: 80px 20px;
   text-align: center;
 }
 
 .error-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
+  font-size: 56px;
+  margin-bottom: 20px;
+  filter: grayscale(1);
 }
 
 .error-message {
   color: #ff6b6b;
-  font-size: 16px;
-  margin: 0 0 20px 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0 0 24px 0;
+  line-height: 1.4;
 }
 
 .retry-button {
-  background-color: #f5c518;
+  background: linear-gradient(135deg, #f5c518 0%, #e6b800 100%);
   color: #000000;
   border: none;
-  padding: 12px 24px;
-  border-radius: 4px;
-  font-size: 14px;
+  padding: 14px 28px;
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(245, 197, 24, 0.3);
 }
 
 .retry-button:hover {
-  background-color: #d4a017;
+  background: linear-gradient(135deg, #e6b800 0%, #d4a017 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(245, 197, 24, 0.4);
 }
 
 /* Responsive Design */
