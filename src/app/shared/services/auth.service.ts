@@ -162,6 +162,15 @@ export class AuthService {
     return throwError({ message: errorMessage, status: error.status });
   }
 
+  handleGoogleLoginCallback(accessToken: string, refreshToken: string | null, user: User): void {
+    localStorage.setItem('imdb-token', accessToken);
+    if (refreshToken) {
+      localStorage.setItem('imdb-refresh-token', refreshToken);
+    }
+    localStorage.setItem('imdb-user', JSON.stringify(user));
+    this.currentUserSubject.next(user);
+  }
+
   // Password validation
   validatePassword(password: string): { valid: boolean; errors: string[] } {
     const errors: string[] = [];

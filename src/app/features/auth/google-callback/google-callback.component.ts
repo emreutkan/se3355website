@@ -70,28 +70,34 @@ export class GoogleCallbackComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      const code = params['code'];
+      const accessToken = params['access_token'];
+      const refreshToken = params['refresh_token'];
       const error = params['error'];
 
       if (error) {
-        this.error = 'Authentication was cancelled or failed. Please try again.';
-        console.error('Google OAuth Error:', error);
+        this.error = `Authentication failed: ${error}. Please try again.`;
+        console.error('Google Auth Error:', error);
         return;
       }
 
-      if (!code) {
-        this.error = 'No authentication code found. Please try logging in again.';
-        return;
-      }
-
-      this.authService.handleGoogleCallback(code).subscribe({
-        next: () => {
-          this.router.navigate(['/']);
-        },
-        error: (err) => {
-          this.error = err.message || 'An unknown error occurred during Google sign-in.';
+      if (accessToken) {
+        localStorage.setItem('imdb-token', accessToken);
+        if (refreshToken) {
+          localStorage.setItem('imdb-refresh-token', refreshToken);
         }
-      });
+
+        this.authService.getCurrentUserProfile().subscribe({
+          next: () => {
+            this.router.navigate(['/']);
+          },
+          error: (err) => {
+            this.error = 'Could not fetch your profile after login. Please try again.';
+            console.error('Error fetching profile after Google login:', err);
+          }
+        });
+      } else {
+        this.error = 'Missing authentication details in the redirect. Please try again.';
+      }
     });
   }
 } 
