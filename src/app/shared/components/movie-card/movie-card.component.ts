@@ -1,12 +1,13 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, Input, OnInit, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Movie } from '../../models/movie.model';
 import { MovieService } from '../../services/movie.service';
 import { WatchlistService } from '../../services/watchlist.service';
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { TranslatePipe } from '../../pipes/translate.pipe';
+import { LanguageService } from '../../services/language.service';
 
 @Component({
   selector: 'app-movie-card',
@@ -15,10 +16,11 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
   templateUrl: './movie-card.component.html',
   styleUrls: ['./movie-card.component.css']
 })
-export class MovieCardComponent implements OnInit {
+export class MovieCardComponent implements OnInit, OnDestroy {
   private movieService = inject(MovieService);
   private watchlistService = inject(WatchlistService);
   private authService = inject(AuthService);
+  private languageService = inject(LanguageService);
 
   @Input() movie!: Movie;
   @Input() showRating = true;
@@ -26,6 +28,9 @@ export class MovieCardComponent implements OnInit {
   @Input() showStatus = false;
   isInWatchlist$: Observable<boolean> = of(false);
   isLoggedIn$: Observable<boolean>;
+
+  currentLang = 'en';
+  private langSubscription!: Subscription;
 
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);
@@ -38,6 +43,24 @@ export class MovieCardComponent implements OnInit {
     if (this.movie) {
       this.isInWatchlist$ = this.watchlistService.isMovieInWatchlist(this.movie.id);
     }
+    this.currentLang = this.languageService.getCurrentLanguage();
+    this.langSubscription = this.languageService.currentLanguage$.subscribe(lang => {
+      this.currentLang = lang;
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.langSubscription) {
+      this.langSubscription.unsubscribe();
+    }
+  }
+
+  getMovieTitle(): string {
+    if (!this.movie) return '';
+    if (this.currentLang === 'tr' && this.movie.title_tr) {
+      return this.movie.title_tr;
+    }
+    return this.movie.title;
   }
 
   getPosterUrl(): string {

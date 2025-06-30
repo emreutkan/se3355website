@@ -15,10 +15,12 @@ export interface Movie {
   runtime_min: number;
   id: string;
   title: string;
+  title_tr?: string;
   year: number;
   genre: string[];
   director: string[];
   summary: string;
+  summary_tr?: string;
   imdb_score: number;
   image_url: string;
   actors?: Actor[];

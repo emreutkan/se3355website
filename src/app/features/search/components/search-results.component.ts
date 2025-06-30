@@ -1,15 +1,13 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, Subscription, takeUntil } from 'rxjs';
 import { MovieService } from '../../../shared/services/movie.service';
+import { LanguageService } from '../../../shared/services/language.service';
+import { Movie } from '../../../shared/models/movie.model';
 import { MovieCardComponent } from '../../../shared/components/movie-card/movie-card.component';
 
-interface SearchResult {
-  id: string;
-  title: string;
-  year?: number;
-  imdb_score?: number;
+interface SearchResult extends Pick<Movie, 'id' | 'title' | 'year' | 'imdb_score' | 'title_tr'> {
 }
 
 interface PersonResult {
@@ -29,8 +27,11 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private movieService = inject(MovieService);
+  private languageService = inject(LanguageService);
 
   private destroy$ = new Subject<void>();
+  currentLang = 'en';
+  private langSubscription!: Subscription;
 
   searchQuery = '';
   searchCategory: 'all' | 'titles' | 'celebs' = 'all';
@@ -57,11 +58,26 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
           this.performSearch();
         }
       });
+    
+    this.currentLang = this.languageService.getCurrentLanguage();
+    this.langSubscription = this.languageService.currentLanguage$.subscribe(lang => {
+      this.currentLang = lang;
+    });
   }
 
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+    if (this.langSubscription) {
+      this.langSubscription.unsubscribe();
+    }
+  }
+
+  getMovieTitle(movie: SearchResult): string {
+    if (this.currentLang === 'tr' && movie.title_tr) {
+      return movie.title_tr;
+    }
+    return movie.title;
   }
 
   performSearch() {

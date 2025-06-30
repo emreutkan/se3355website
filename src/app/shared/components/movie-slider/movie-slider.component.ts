@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { Movie } from '../../models/movie.model';
 import { LanguageService } from '../../services/language.service';
 import { TranslatePipe } from '../../pipes/translate.pipe';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-movie-slider',
@@ -25,6 +26,9 @@ export class MovieSliderComponent implements OnInit, OnDestroy {
   slideTimer: any;
   isPlaying = false;
 
+  currentLang = 'en';
+  private langSubscription!: Subscription;
+
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);
 
@@ -34,10 +38,17 @@ export class MovieSliderComponent implements OnInit, OnDestroy {
     if (this.autoSlide && this.movies.length > 1) {
       this.startAutoSlide();
     }
+    this.currentLang = this.languageService.getCurrentLanguage();
+    this.langSubscription = this.languageService.currentLanguage$.subscribe(lang => {
+      this.currentLang = lang;
+    });
   }
 
   ngOnDestroy() {
     this.stopAutoSlide();
+    if (this.langSubscription) {
+      this.langSubscription.unsubscribe();
+    }
   }
 
   startAutoSlide() {
@@ -74,6 +85,22 @@ export class MovieSliderComponent implements OnInit, OnDestroy {
 
   get currentMovie(): Movie | null {
     return this.movies[this.currentIndex] || null;
+  }
+
+  getMovieTitle(movie: Movie | null): string {
+    if (!movie) return '';
+    if (this.currentLang === 'tr' && movie.title_tr) {
+      return movie.title_tr;
+    }
+    return movie.title;
+  }
+
+  getMovieSummary(movie: Movie | null): string {
+    if (!movie) return '';
+    if (this.currentLang === 'tr' && movie.summary_tr) {
+      return movie.summary_tr;
+    }
+    return movie.summary;
   }
 
   getVisibleMovies(): Movie[] {

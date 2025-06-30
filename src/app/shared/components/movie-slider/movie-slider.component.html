@@ -24,14 +24,14 @@
       <div class="movie-content">
         <div class="movie-poster">
           <img [src]="getPosterUrl(currentMovie)"
-               [alt]="currentMovie.title"
-               [title]="currentMovie.title"
+               [alt]="getMovieTitle(currentMovie)"
+               [title]="getMovieTitle(currentMovie)"
                class="poster-img"
                (error)="onImageError($event, currentMovie)">
         </div>
 
         <div class="movie-info">
-          <h3 class="movie-title">{{ currentMovie.title }}</h3>
+          <h3 class="movie-title">{{ getMovieTitle(currentMovie) }}</h3>
 
           <div class="movie-meta">
             <div class="rating">
@@ -49,7 +49,7 @@
             <span class="genres">{{ getGenresText(currentMovie) }}</span>
           </div>
 
-          <p class="movie-overview">{{ currentMovie.summary }}</p>
+          <p class="movie-overview">{{ getMovieSummary(currentMovie) }}</p>
 
           <div class="movie-actions">
             <button class="action-btn primary" (click)="onWatchTrailer(currentMovie)">

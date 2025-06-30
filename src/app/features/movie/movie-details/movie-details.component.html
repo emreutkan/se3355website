@@ -2,10 +2,10 @@
   <div class="background-image" [style.backgroundImage]="'url(' + movie.image_url + ')'"></div>
   <div class="movie-header">
     <div class="poster">
-      <img [src]="movie.image_url" [alt]="movie.title">
+      <img [src]="movie.image_url" [alt]="getMovieTitle(movie)">
     </div>
     <div class="header-details">
-      <h1>{{ movie.title }}</h1>
+      <h1>{{ getMovieTitle(movie) }}</h1>
       <div class="meta">
         <span>{{ movie.year }}</span>
         <span>R</span>
@@ -17,7 +17,7 @@
   <div class="movie-body">
     <div class="left-column">
       <div class="summary">
-        <p>{{ movie.summary }}</p>
+        <p>{{ getMovieSummary(movie) }}</p>
       </div>
 
       <div class="details-group">
