@@ -57,8 +57,14 @@
               {{ 'home.watchtrailer' | translate }}
             </button>
             <button class="action-btn secondary" (click)="onAddToWatchlist(currentMovie)">
-              <span>+</span>
-              {{ 'header.watchlist' | translate }}
+              <ng-container *ngIf="(isInWatchlist$ | async); else addToWatchlist">
+                <span>✓</span>
+                {{ 'movie.inwatchlist' | translate }}
+              </ng-container>
+              <ng-template #addToWatchlist>
+                <span>+</span>
+                {{ 'home.addwatchlist' | translate }}
+              </ng-template>
             </button>
             <button class="action-btn tertiary" [routerLink]="['/movie', currentMovie.id]">
               <span>ⓘ</span>

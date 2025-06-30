@@ -1,73 +1,95 @@
-<div class="movie-details-container" *ngIf="movie">
-  <div class="background-image" [style.backgroundImage]="'url(' + movie.image_url + ')'"></div>
-  <div class="movie-header">
-    <div class="poster">
-      <img [src]="movie.image_url" [alt]="getMovieTitle(movie)">
-    </div>
-    <div class="header-details">
-      <h1>{{ getMovieTitle(movie) }}</h1>
-      <div class="meta">
-        <span>{{ movie.year }}</span>
-        <span>R</span>
-        <span>{{ movie.runtime_min }} min</span>
-      </div>
+<div class="page-container" *ngIf="movie">
+  <div class="header-main">
+    <h1 class="movie-title">{{ getMovieTitle(movie) }}</h1>
+    <div class="title-metadata">
+      <span>{{ movie.year }}</span>
+      <span>R</span> <!-- Hardcoded -->
+      <span>{{ movie.runtime_min }}m</span>
     </div>
   </div>
 
-  <div class="movie-body">
-    <div class="left-column">
-      <div class="summary">
-        <p>{{ getMovieSummary(movie) }}</p>
-      </div>
+  <div class="content-grid">
 
-      <div class="details-group">
-        <p><strong>Director:</strong> <span>{{ getDirector() }}</span></p>
-        <p><strong>Writers:</strong> <span>{{ getWriters() }}</span></p>
-        <p><strong>Stars:</strong>
-          <span *ngFor="let actor of movie.actors; let last = last">
-            <a [routerLink]="['/actors', actor.id]">{{ actor.full_name }}</a>{{!last ? ', ' : ''}}
-          </span>
-        </p>
+    <!-- Left Column: Poster & Details -->
+    <div class="column-left">
+      <div class="poster-container">
+        <img [src]="movie.image_url" [alt]="getMovieTitle(movie)" class="movie-poster">
+      </div>
+      <div class="details-container">
+        <div class="genre-pills" *ngIf="movie.genre">
+          <span class="genre-pill" *ngFor="let genre of movie.genre">{{ genre }}</span>
+        </div>
+        <p class="summary-text">{{ getMovieSummary(movie) }}</p>
+        <div class="crew-info">
+          <div class="crew-item" *ngIf="movie.director">
+            <span class="crew-role">Director</span>
+            <a href="#" class="crew-name">{{ movie.director?.join(', ') }}</a>
+          </div>
+          <div class="crew-item">
+            <span class="crew-role">Writers</span>
+            <a href="#" class="crew-name">N/A</a>
+          </div>
+          <div class="crew-item">
+            <span class="crew-role">Stars</span>
+            <span class="crew-names">
+              <ng-container *ngFor="let actor of movie.actors | slice:0:3; let last = last">
+                <a href="#">{{ actor.full_name }}</a>{{ !last ? ', ' : '' }}
+              </ng-container>
+            </span>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="right-column">
-      <div class="imdb-rating">
-        <p><strong>IMDb RATING</strong></p>
-        <div>
-          <span>⭐</span>
-          <span><strong>{{ movie.imdb_score  }}</strong> / 10</span>
-        </div>
-        <p>{{ movie.rating_count | number }}</p>
-      </div>
-
-      <button *ngIf="isLoggedIn$ | async" class="watchlist-button" (click)="toggleWatchlist()">
-        <ng-container *ngIf="isInWatchlist$ | async; else addToWatchlist">
-          ✓ Added to Watchlist
+    <!-- Right Column: Trailer & Actions -->
+    <div class="column-right">
+      <div class="trailer-container">
+        <ng-container *ngIf="!showTrailer; else trailerPlayer">
+          <div (click)="playTrailer()" class="trailer-link" style="cursor: pointer;">
+            <img [src]="movie.image_url" alt="Trailer thumbnail" class="trailer-thumbnail">
+            <div class="trailer-overlay">
+              <div class="play-icon-container">
+                <svg class="play-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M8 5v14l11-7z"></path></svg>
+              </div>
+              <div class="trailer-overlay-text">
+                <span>Play trailer</span>
+              </div>
+            </div>
+          </div>
         </ng-container>
-        <ng-template #addToWatchlist>
-          + Add to Watchlist
+        <ng-template #trailerPlayer>
+          <iframe *ngIf="trailerUrl" [src]="trailerUrl" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </ng-template>
-      </button>
-
-      <div class="media-section">
-        <h3>VIDEOS</h3>
-        <div class="videos">
-          <div class="video-placeholder">
-            <a [href]="movie.trailer_url" target="_blank">
-              <img [src]="movie.image_url" alt="Trailer thumbnail">
-              <span>Play trailer</span>
-            </a>
+      </div>
+      <div class="actions-container">
+        <div class="ratings-section">
+          <div class="rating-box">
+            <span class="rating-heading">IMDb RATING</span>
+            <div class="rating-score">
+              <svg class="star-icon" viewBox="0 0 24 24"><path fill="#f5c518" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+              <span><strong>{{ movie.imdb_score?.toFixed(1) }}</strong>/10</span>
+            </div>
+          </div>
+          <div class="rating-box">
+            <span class="rating-heading">YOUR RATING</span>
+            <button class="rate-button">
+              <svg class="rate-star-icon" viewBox="0 0 24 24"><path fill="none" stroke="#5799ef" stroke-width="2" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+              <span class="rate-text">Rate</span>
+            </button>
           </div>
         </div>
-
-        <h3>PHOTOS</h3>
-        <div class="photos">
-          <div class="photo-placeholder">
-            <img [src]="movie.image_url" alt="Movie photo">
-          </div>
-        </div>
+        <button class="add-to-watchlist" (click)="toggleWatchlist()">
+          <ng-container *ngIf="isInWatchlist$ | async; else addToWatchlist">
+            <span class="watchlist-icon added">✓</span>
+            <span class="watchlist-text">Added</span>
+          </ng-container>
+          <ng-template #addToWatchlist>
+            <span class="watchlist-icon ">+</span>
+            <span class="watchlist-text">Add to Watchlist</span>
+          </ng-template>
+        </button>
       </div>
     </div>
+    
   </div>
 </div>

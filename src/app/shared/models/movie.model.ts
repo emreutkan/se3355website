@@ -6,7 +6,7 @@ export interface Actor {
   photo_url?: string;
   birth_date?: string;
   nationality?: string;
-  biography?: string;
+  bio?: string;
 }
 
 export interface Movie {
@@ -17,8 +17,8 @@ export interface Movie {
   title: string;
   title_tr?: string;
   year: number;
-  genre: string[];
-  director: string[];
+  genre?: string[];
+  director?: string[];
   summary: string;
   summary_tr?: string;
   imdb_score: number;
@@ -28,6 +28,10 @@ export interface Movie {
   country?: string;
   language?: string;
   release_date?: string;
+  popularity?: Popularity;
+  rating_distribution?: RatingDistributionItem[];
+  created_at?: string;
+  original_title?: string;
 }
 
 export interface Rating {
@@ -46,6 +50,19 @@ export interface PopularitySnapshot {
   snapshot_date: string; // ISO string (date when popularity calculated)
   vote_count: number;
   average_rating: number;
+}
+
+export interface Popularity {
+  movie_id: string;
+  rank: number;
+  score: number;
+  snapshot_date: string;
+}
+
+export interface RatingDistributionItem {
+  avg_rating: number;
+  country: string;
+  votes: number;
 }
 
 export type SortOption = 'popularity' | 'rating' | 'year' | 'title';

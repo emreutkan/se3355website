@@ -4,7 +4,8 @@ import { RouterModule } from '@angular/router';
 import { Movie } from '../../models/movie.model';
 import { LanguageService } from '../../services/language.service';
 import { TranslatePipe } from '../../pipes/translate.pipe';
-import { Subscription } from 'rxjs';
+import { Observable, of, Subscription } from 'rxjs';
+import { WatchlistService } from '../../services/watchlist.service';
 
 @Component({
   selector: 'app-movie-slider',
@@ -15,6 +16,7 @@ import { Subscription } from 'rxjs';
 })
 export class MovieSliderComponent implements OnInit, OnDestroy {
   private languageService = inject(LanguageService);
+  private watchlistService = inject(WatchlistService);
 
   @Input() movies: Movie[] = [];
   @Input() autoSlide = true;
@@ -26,6 +28,7 @@ export class MovieSliderComponent implements OnInit, OnDestroy {
   slideTimer: any;
   isPlaying = false;
 
+  isInWatchlist$: Observable<boolean> = of(false);
   currentLang = 'en';
   private langSubscription!: Subscription;
 
@@ -42,12 +45,21 @@ export class MovieSliderComponent implements OnInit, OnDestroy {
     this.langSubscription = this.languageService.currentLanguage$.subscribe(lang => {
       this.currentLang = lang;
     });
+    this.updateWatchlistStatus();
   }
 
   ngOnDestroy() {
     this.stopAutoSlide();
     if (this.langSubscription) {
       this.langSubscription.unsubscribe();
+    }
+  }
+
+  updateWatchlistStatus() {
+    if (this.currentMovie) {
+      this.isInWatchlist$ = this.watchlistService.isMovieInWatchlist(this.currentMovie.id);
+    } else {
+      this.isInWatchlist$ = of(false);
     }
   }
 
@@ -67,12 +79,14 @@ export class MovieSliderComponent implements OnInit, OnDestroy {
     if (this.movies.length > 0) {
       this.currentIndex = (this.currentIndex + 1) % this.movies.length;
     }
+    this.updateWatchlistStatus();
   }
 
   prevSlide() {
     if (this.movies.length > 0) {
       this.currentIndex = this.currentIndex === 0 ? this.movies.length - 1 : this.currentIndex - 1;
     }
+    this.updateWatchlistStatus();
   }
 
   goToSlide(index: number) {
@@ -81,6 +95,7 @@ export class MovieSliderComponent implements OnInit, OnDestroy {
     if (this.autoSlide) {
       this.startAutoSlide();
     }
+    this.updateWatchlistStatus();
   }
 
   get currentMovie(): Movie | null {
@@ -141,13 +156,16 @@ export class MovieSliderComponent implements OnInit, OnDestroy {
   }
 
   onWatchTrailer(movie: Movie) {
-    // Trailer functionality to be implemented
-    this.isPlaying = true;
+    if (movie?.trailer_url) {
+      window.open(movie.trailer_url, '_blank');
+    }
     this.stopAutoSlide();
   }
 
   onAddToWatchlist(movie: Movie) {
-    // Watchlist functionality to be implemented
+    if (movie) {
+      this.watchlistService.toggleWatchlist(movie.id).subscribe();
+    }
   }
 
   onLearnMore(movie: Movie) {
