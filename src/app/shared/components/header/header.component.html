@@ -116,7 +116,7 @@
         <button class="sign-in-button" (click)="onSignIn()">Sign In</button>
       </div>
 
-      <div class="navbar__user" *ngIf="isLoggedIn" (click)="toggleUserDropdown()">
+      <div class="navbar__user" *ngIf="isLoggedIn" (mouseenter)="showUserDropdown = true" (mouseleave)="showUserDropdown = false">
         <span class="user-name">{{ getUserDisplayName() }}</span>
         <svg class="dropdown-arrow" viewBox="0 0 24 24">
           <path d="M7,10L12,15L17,10H7Z"/>
@@ -154,7 +154,7 @@
       </div>
 
       <!-- Language selector -->
-      <div class="navbar__language" (click)="toggleLanguageDropdown()">
+      <div class="navbar__language" (mouseenter)="showLanguageDropdown = true" (mouseleave)="showLanguageDropdown = false">
         <span class="language-code">{{currentLanguage.toUpperCase()}}</span>
         <svg class="dropdown-arrow" viewBox="0 0 24 24">
           <path d="M7,10L12,15L17,10H7Z"/>

@@ -1,0 +1,37 @@
+[
+  {
+    "name": "United States",
+    "iso2": "US",
+    "cities": ["New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia", "San Antonio", "San Diego", "Dallas", "San Jose"]
+  },
+  {
+    "name": "United Kingdom",
+    "iso2": "GB",
+    "cities": ["London", "Birmingham", "Glasgow", "Liverpool", "Bristol", "Manchester", "Sheffield", "Leeds", "Edinburgh", "Leicester"]
+  },
+  {
+    "name": "Canada",
+    "iso2": "CA",
+    "cities": ["Toronto", "Montreal", "Vancouver", "Calgary", "Edmonton", "Ottawa", "Mississauga", "Winnipeg", "Quebec City", "Hamilton"]
+  },
+  {
+    "name": "Australia",
+    "iso2": "AU",
+    "cities": ["Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide", "Gold Coast", "Cranbourne", "Canberra", "Newcastle", "Wollongong"]
+  },
+  {
+    "name": "Germany",
+    "iso2": "DE",
+    "cities": ["Berlin", "Hamburg", "Munich", "Cologne", "Frankfurt", "Stuttgart", "Düsseldorf", "Dortmund", "Essen", "Leipzig"]
+  },
+  {
+    "name": "France",
+    "iso2": "FR",
+    "cities": ["Paris", "Marseille", "Lyon", "Toulouse", "Nice", "Nantes", "Strasbourg", "Montpellier", "Bordeaux", "Lille"]
+  },
+  {
+    "name": "Turkey",
+    "iso2": "TR",
+    "cities": ["Istanbul", "Ankara", "Izmir", "Bursa", "Adana", "Gaziantep", "Konya", "Antalya", "Diyarbakir", "Mersin"]
+  }
+] 

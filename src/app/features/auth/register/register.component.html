@@ -1,0 +1,85 @@
+<div class="register-container">
+  <div class="register-box">
+    <h1>Create Account</h1>
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+
+      <div class="form-group photo-upload">
+        <label>Profile Photo (Optional)</label>
+        <div class="photo-preview" (click)="fileInput.click()" tabindex="0" (keydown.enter)="fileInput.click()">
+          <img *ngIf="imagePreview" [src]="imagePreview" alt="Profile preview">
+          <div *ngIf="!imagePreview" class="photo-placeholder">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="48" height="48"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"></path></svg>
+            <span>Upload Photo</span>
+          </div>
+        </div>
+        <input #fileInput type="file" (change)="onFileSelected($event)" accept="image/png, image/jpeg, image/webp" style="display: none;">
+      </div>
+
+      <div class="form-group">
+        <label for="fullName">Full Name (Optional)</label>
+        <input id="fullName" type="text" formControlName="fullName">
+        <div *ngIf="fullName?.invalid && (fullName?.dirty || fullName?.touched)" class="error-text">
+          <small *ngIf="fullName?.errors?.['required']">Full name is required.</small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input id="email" type="email" formControlName="email" required>
+        <div *ngIf="email?.invalid && (email?.dirty || email?.touched)" class="error-text">
+          <small *ngIf="email?.errors?.['required']">Email is required.</small>
+          <small *ngIf="email?.errors?.['email']">Please enter a valid email address.</small>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="country">Country (Optional)</label>
+          <select id="country" formControlName="country">
+            <option value="" disabled selected>Select Country</option>
+            <option *ngFor="let country of countries" [value]="country.iso2">{{ country.name }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="city">City (Optional)</label>
+          <select id="city" formControlName="city" [disabled]="!cities.length">
+             <option value="" disabled selected>Select City</option>
+             <option *ngFor="let city of cities" [value]="city">{{ city }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input id="password" type="password" formControlName="password" (input)="validatePassword()" required>
+        <div *ngIf="passwordErrors.length > 0 && (password?.dirty || password?.touched)" class="error-text">
+          <div *ngFor="let error of passwordErrors">{{error}}</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">Confirm Password</label>
+        <input id="confirmPassword" type="password" formControlName="confirmPassword" required>
+        <div *ngIf="confirmPassword?.invalid && (confirmPassword?.dirty || confirmPassword?.touched)" class="error-text">
+          <small *ngIf="confirmPassword?.errors?.['required']">Please confirm your password.</small>
+        </div>
+        <div *ngIf="registerForm.hasError('mismatch') && confirmPassword?.touched" class="error-text">
+          <small>Passwords do not match.</small>
+        </div>
+      </div>
+
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+
+      <button type="submit" [disabled]="registerForm.invalid || isLoading" class="register-button">
+        <span *ngIf="!isLoading">Create Account</span>
+        <span *ngIf="isLoading" class="spinner"></span>
+      </button>
+    </form>
+
+    <div class="login-link">
+      Already have an account? <a routerLink="/auth/login">Sign-In</a>
+    </div>
+  </div>
+</div> 

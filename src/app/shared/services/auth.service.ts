@@ -57,7 +57,18 @@ export class AuthService {
 
   // Google OAuth login initiation
   initiateGoogleLogin(): void {
-    window.location.href = `${apiUrl}/auth/google`;
+    const clientId = '554088359923-ivcsq00lju65qvg7op946eij0l88vl3r.apps.googleusercontent.com';
+    const redirectUri = 'http://localhost:5000/api/auth/google/callback';
+    const scope = 'openid email profile';
+    const responseType = 'code';
+
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
+      `client_id=${clientId}` +
+      `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+      `&scope=${encodeURIComponent(scope)}` +
+      `&response_type=${responseType}`;
+
+    window.location.href = authUrl;
   }
 
   // Handle Google OAuth callback (if needed for client-side handling)

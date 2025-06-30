@@ -1,0 +1,55 @@
+<div class="login-container">
+  <a routerLink="/" class="imdb-logo-link">
+    <div class="imdb-logo">IMDb</div>
+  </a>
+  <div class="login-box">
+    <h1>Sign in</h1>
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="email">Email or mobile phone number</label>
+        <input id="email" type="email" formControlName="email" required>
+        <div *ngIf="email?.invalid && (email?.dirty || email?.touched)" class="error-text">
+          <small *ngIf="email?.errors?.['required']">Email is required.</small>
+          <small *ngIf="email?.errors?.['email']">Please enter a valid email address.</small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="password-label">
+          <label for="password">Password</label>
+          <a routerLink="/auth/forgot-password" class="password-assistance">Password assistance</a>
+        </div>
+        <input id="password" type="password" formControlName="password" required>
+        <div *ngIf="password?.invalid && (password?.dirty || password?.touched)" class="error-text">
+          <small *ngIf="password?.errors?.['required']">Password is required.</small>
+        </div>
+      </div>
+
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+
+      <button type="submit" [disabled]="loginForm.invalid || isLoading" class="login-button">
+        <span *ngIf="!isLoading">Sign in</span>
+        <span *ngIf="isLoading" class="spinner"></span>
+      </button>
+
+      <div class="form-group keep-signed-in">
+        <input type="checkbox" id="keep-signed-in">
+        <label for="keep-signed-in">Keep me signed in. <a href="#">Details <svg class="dropdown-arrow" viewBox="0 0 24 24"><path d="M7,10L12,15L17,10H7Z"></path></svg></a></label>
+      </div>
+    </form>
+
+    <button (click)="onGoogleLogin()" class="google-login-button">
+      <img src="/assets/google-logo.svg" alt="Google logo">
+      Sign in with Google
+    </button>
+
+    <div class="separator">
+      <span>New to IMDb?</span>
+    </div>
+
+    <a routerLink="/auth/register" class="create-account-button">Create your IMDb account</a>
+
+  </div>
+</div> 

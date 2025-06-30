@@ -1,0 +1,244 @@
+.login-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #fff;
+  font-family: 'Roboto', sans-serif;
+  padding-top: 30px;
+}
+
+.imdb-logo-link {
+  text-decoration: none;
+  margin-bottom: 20px;
+}
+
+.imdb-logo {
+  background-color: #f5c518;
+  color: #000;
+  font-weight: bold;
+  font-size: 24px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.login-box {
+  background-color: #fff;
+  padding: 26px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  width: 100%;
+  max-width: 350px;
+}
+
+h1 {
+  font-size: 28px;
+  font-weight: 400;
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #111;
+}
+
+.form-group {
+  margin-bottom: 14px;
+}
+
+.password-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.password-assistance {
+  font-size: 13px;
+  color: #0066c0;
+  text-decoration: none;
+}
+
+.password-assistance:hover {
+  text-decoration: underline;
+}
+
+label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: #111;
+  font-size: 13px;
+}
+
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  padding: 7px;
+  border: 1px solid #a6a6a6;
+  border-top-color: #949494;
+  border-radius: 3px;
+  font-size: 15px;
+  box-shadow: 0 1px 0 rgba(255,255,255,.5), 0 1px 0 rgba(0,0,0,.07) inset;
+}
+
+.error-text {
+  color: #d93025;
+  font-size: 0.8rem;
+  margin-top: 4px;
+}
+
+.error-message {
+  color: #d93025;
+  background-color: #fce8e6;
+  border: 1px solid #fcc6c0;
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.login-button {
+  width: 100%;
+  padding: 9px;
+  background: linear-gradient(to bottom,#f7dfa5,#f0c14b);
+  border: 1px solid #a6a6a6;
+  border-top-color: #949494;
+  border-radius: 3px;
+  font-size: 15px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  height: auto;
+  margin-bottom: 20px;
+}
+
+.login-button:disabled {
+  background: #e7e7e7;
+  color: #8d8d8d;
+  cursor: not-allowed;
+}
+
+.login-button:hover:not(:disabled) {
+  background: linear-gradient(to bottom,#f5d78e,#eeb933);
+}
+
+.keep-signed-in {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+}
+
+.keep-signed-in input {
+  margin-right: 5px;
+}
+
+.keep-signed-in label a {
+  color: #0066c0;
+  text-decoration: none;
+}
+
+.keep-signed-in label a:hover {
+  text-decoration: underline;
+}
+
+.keep-signed-in .dropdown-arrow {
+  width: 12px;
+  height: 12px;
+  fill: #888;
+  vertical-align: middle;
+}
+
+.separator {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 22px 0;
+  color: #767676;
+  font-size: 12px;
+}
+
+.separator::before,
+.separator::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #e7e7e7;
+}
+
+.separator span {
+  padding: 0 10px;
+}
+
+.create-account-button {
+  width: 100%;
+  padding: 9px;
+  background: linear-gradient(to bottom,#f7f8fa,#e7e9ec);
+  border: 1px solid #a6a6a6;
+  border-top-color: #949494;
+  border-radius: 3px;
+  font-size: 13px;
+  text-align: center;
+  text-decoration: none;
+  color: #111;
+  display: block;
+}
+
+.create-account-button:hover {
+  background: linear-gradient(to bottom,#e7e9ec,#e0e2e6);
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(0, 0, 0, 0.2);
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.google-login-button {
+  width: 100%;
+  padding: 9px;
+  background-color: #fff;
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.google-login-button:hover {
+  background-color: #f8f8f8;
+  border-color: #aaa;
+}
+
+.google-login-button img {
+  width: 18px;
+  height: 18px;
+}
+
+.register-link {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.register-link a {
+  color: #0066c0;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.register-link a:hover {
+  text-decoration: underline;
+} 
