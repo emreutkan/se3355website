@@ -1,13 +1,9 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
-export interface Translation {
-  [key: string]: string;
-}
+export type Translation = Record<string, string>;
 
-export interface Translations {
-  [language: string]: Translation;
-}
+export type Translations = Record<string, Translation>;
 
 @Injectable({
   providedIn: 'root'
@@ -232,7 +228,7 @@ export class LanguageService {
   }
 
   // Get supported languages
-  getSupportedLanguages(): Array<{code: string, name: string, flag: string}> {
+  getSupportedLanguages(): {code: string, name: string, flag: string}[] {
     return [
       { code: 'en', name: 'English', flag: '🇺🇸' },
       { code: 'tr', name: 'Türkçe', flag: '🇹🇷' }

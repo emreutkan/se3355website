@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Movie } from '../../models/movie.model';
@@ -12,17 +12,22 @@ import { LanguageService } from '../../services/language.service';
   styleUrls: ['./movie-slider.component.css']
 })
 export class MovieSliderComponent implements OnInit, OnDestroy {
+  private languageService = inject(LanguageService);
+
   @Input() movies: Movie[] = [];
-  @Input() autoSlide: boolean = true;
-  @Input() slideInterval: number = 5000;
-  @Input() title: string = '';
-  @Input() showTrailer: boolean = false;
+  @Input() autoSlide = true;
+  @Input() slideInterval = 5000;
+  @Input() title = '';
+  @Input() showTrailer = false;
 
   currentIndex = 0;
   slideTimer: any;
   isPlaying = false;
 
-  constructor(private languageService: LanguageService) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit() {
     if (this.autoSlide && this.movies.length > 1) {

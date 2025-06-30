@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 
@@ -12,9 +12,14 @@ export interface Country {
   providedIn: 'root'
 })
 export class LocationService {
+  private http = inject(HttpClient);
+
   private dataUrl = '/assets/data/countries-cities.json';
 
-  constructor(private http: HttpClient) { }
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() { }
 
   getCountries(): Observable<Country[]> {
     return this.http.get<Country[]>(this.dataUrl);

@@ -1,0 +1,73 @@
+<div class="movie-details-container" *ngIf="movie">
+  <div class="background-image" [style.backgroundImage]="'url(' + movie.image_url + ')'"></div>
+  <div class="movie-header">
+    <div class="poster">
+      <img [src]="movie.image_url" [alt]="movie.title">
+    </div>
+    <div class="header-details">
+      <h1>{{ movie.title }}</h1>
+      <div class="meta">
+        <span>{{ movie.year }}</span>
+        <span>R</span>
+        <span>{{ movie.runtime_min }} min</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="movie-body">
+    <div class="left-column">
+      <div class="summary">
+        <p>{{ movie.summary }}</p>
+      </div>
+
+      <div class="details-group">
+        <p><strong>Director:</strong> <span>{{ getDirector() }}</span></p>
+        <p><strong>Writers:</strong> <span>{{ getWriters() }}</span></p>
+        <p><strong>Stars:</strong>
+          <span *ngFor="let actor of movie.actors; let last = last">
+            <a [routerLink]="['/actors', actor.id]">{{ actor.full_name }}</a>{{!last ? ', ' : ''}}
+          </span>
+        </p>
+      </div>
+    </div>
+
+    <div class="right-column">
+      <div class="imdb-rating">
+        <p><strong>IMDb RATING</strong></p>
+        <div>
+          <span>⭐</span>
+          <span><strong>{{ movie.imdb_score  }}</strong> / 10</span>
+        </div>
+        <p>{{ movie.rating_count | number }}</p>
+      </div>
+
+      <button *ngIf="isLoggedIn$ | async" class="watchlist-button" (click)="toggleWatchlist()">
+        <ng-container *ngIf="isInWatchlist$ | async; else addToWatchlist">
+          ✓ Added to Watchlist
+        </ng-container>
+        <ng-template #addToWatchlist>
+          + Add to Watchlist
+        </ng-template>
+      </button>
+
+      <div class="media-section">
+        <h3>VIDEOS</h3>
+        <div class="videos">
+          <div class="video-placeholder">
+            <a [href]="movie.trailer_url" target="_blank">
+              <img [src]="movie.image_url" alt="Trailer thumbnail">
+              <span>Play trailer</span>
+            </a>
+          </div>
+        </div>
+
+        <h3>PHOTOS</h3>
+        <div class="photos">
+          <div class="photo-placeholder">
+            <img [src]="movie.image_url" alt="Movie photo">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

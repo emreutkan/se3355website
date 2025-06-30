@@ -21,6 +21,7 @@ export interface Movie {
   summary: string;
   imdb_score: number;
   image_url: string;
+  actors?: Actor[];
   runtime?: number;
   country?: string;
   language?: string;

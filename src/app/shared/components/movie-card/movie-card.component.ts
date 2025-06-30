@@ -1,8 +1,11 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Movie } from '../../models/movie.model';
 import { MovieService } from '../../services/movie.service';
+import { WatchlistService } from '../../services/watchlist.service';
+import { Observable, of } from 'rxjs';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-movie-card',
@@ -11,13 +14,30 @@ import { MovieService } from '../../services/movie.service';
   templateUrl: './movie-card.component.html',
   styleUrls: ['./movie-card.component.css']
 })
-export class MovieCardComponent {
-  @Input() movie!: Movie;
-  @Input() showRating: boolean = true;
-  @Input() showYear: boolean = true;
-  @Input() showStatus: boolean = false;
+export class MovieCardComponent implements OnInit {
+  private movieService = inject(MovieService);
+  private watchlistService = inject(WatchlistService);
+  private authService = inject(AuthService);
 
-  constructor(private movieService: MovieService) {}
+  @Input() movie!: Movie;
+  @Input() showRating = true;
+  @Input() showYear = true;
+  @Input() showStatus = false;
+  isInWatchlist$: Observable<boolean> = of(false);
+  isLoggedIn$: Observable<boolean>;
+
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
+    this.isLoggedIn$ = this.authService.isLoggedIn$;
+  }
+
+  ngOnInit(): void {
+    if (this.movie) {
+      this.isInWatchlist$ = this.watchlistService.isMovieInWatchlist(this.movie.id);
+    }
+  }
 
   getPosterUrl(): string {
     return this.movieService.getPosterUrl(this.movie.image_url);
@@ -66,9 +86,10 @@ export class MovieCardComponent {
     }
   }
 
-  onWatchlistClick(event: Event): void {
-    event.stopPropagation(); // Prevent navigation to movie details
-    // Watchlist functionality handled by parent component
+  toggleWatchlist(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.watchlistService.toggleWatchlist(this.movie.id).subscribe();
   }
 
   onTrailerClick(event: Event): void {

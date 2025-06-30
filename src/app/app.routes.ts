@@ -12,7 +12,18 @@ export const routes: Routes = [
   },
   {
     path: 'auth',
-    loadChildren: () => import('./features/auth/auth.routes').then(r => r.authRoutes)
+    loadChildren: () => import('./features/auth/auth.routes').then(m => m.authRoutes)
   },
-  // Add more feature modules here as needed
+  {
+    path: 'movie',
+    loadChildren: () => import('./features/movie/movie.routes').then(m => m.MOVIE_ROUTES)
+  },
+  {
+    path: 'watchlist',
+    loadChildren: () => import('./features/watchlist/watchlist.routes').then(m => m.WATCHLIST_ROUTES)
+  },
+  {
+    path: '**',
+    redirectTo: ''
+  }
 ];

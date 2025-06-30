@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
@@ -21,11 +21,15 @@ interface PersonResult {
 @Component({
   selector: 'app-search-results',
   standalone: true,
-  imports: [CommonModule, RouterModule, MovieCardComponent],
+  imports: [CommonModule, RouterModule],
   templateUrl: './search-results.component.html',
   styleUrls: ['./search-results.component.css']
 })
 export class SearchResultsComponent implements OnInit, OnDestroy {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private movieService = inject(MovieService);
+
   private destroy$ = new Subject<void>();
 
   searchQuery = '';
@@ -37,11 +41,10 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
   personResults: PersonResult[] = [];
   hasResults = false;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private movieService: MovieService
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit() {
     this.route.queryParams

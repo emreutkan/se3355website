@@ -1,0 +1,170 @@
+:host {
+  display: block;
+  color: #fff;
+  background-color: #121212;
+}
+
+.movie-details-container {
+  position: relative;
+  padding-top: 50px;
+}
+
+.background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 500px;
+  background-size: cover;
+  background-position: center;
+  filter: blur(8px);
+  opacity: 0.2;
+  z-index: 1;
+}
+
+.movie-header {
+  display: flex;
+  position: relative;
+  z-index: 2;
+  padding: 0 50px;
+  align-items: flex-end;
+}
+
+.poster img {
+  width: 200px;
+  border-radius: 8px;
+}
+
+.header-details {
+  margin-left: 30px;
+}
+
+.header-details h1 {
+  font-size: 3rem;
+  margin: 0;
+}
+
+.header-details .meta {
+  font-size: 1.1rem;
+  color: #aaa;
+}
+
+.header-details .meta span {
+  margin-right: 15px;
+}
+
+.movie-body {
+  display: flex;
+  padding: 50px;
+  position: relative;
+  z-index: 2;
+}
+
+.left-column {
+  flex: 2;
+  padding-right: 50px;
+}
+
+.right-column {
+  flex: 1;
+}
+
+.summary {
+  margin-bottom: 20px;
+}
+
+.details-group p {
+  margin: 10px 0;
+}
+
+.details-group strong {
+  color: #aaa;
+}
+
+.details-group a {
+  color: #5799ef;
+  text-decoration: none;
+}
+
+.details-group a:hover {
+  text-decoration: underline;
+}
+
+.imdb-rating {
+  background-color: #222;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.imdb-rating p {
+  margin: 5px 0;
+  color: #aaa;
+}
+
+.imdb-rating div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.imdb-rating span {
+  margin: 0 5px;
+}
+
+.watchlist-button {
+  background-color: #f5c518;
+  color: #000;
+  border: none;
+  padding: 15px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.watchlist-button:hover {
+  background-color: #e0b410;
+}
+
+.media-section h3 {
+  border-bottom: 1px solid #333;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+.video-placeholder, .photo-placeholder {
+  background-color: #222;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.video-placeholder img, .photo-placeholder img {
+  width: 100%;
+  display: block;
+}
+
+.video-placeholder a {
+  display: block;
+  position: relative;
+  text-decoration: none;
+  color: white;
+}
+
+.video-placeholder span {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background-color: rgba(0,0,0,0.7);
+  padding: 5px 10px;
+  border-radius: 5px;
+} 

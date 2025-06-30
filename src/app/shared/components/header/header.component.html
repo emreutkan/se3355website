@@ -100,72 +100,55 @@
 
     <!-- Right side - User actions -->
     <div class="navbar__right">
-      <!-- IMDbPro link -->
-      <a href="#" class="navbar__pro-link">IMDb<span class="pro-text">Pro</span></a>
+      <div class="navbar__actions">
+        <!-- IMDbPro -->
+        <a href="#" class="navbar__link--imdb-pro">IMDbPro</a>
 
-      <div class="separator"></div>
+        <!-- Divider -->
+        <div class="navbar__divider"></div>
 
-      <!-- Watchlist -->
-      <button class="navbar__watchlist">
-        <i class="fas fa-bookmark"></i>
-        <span>Watchlist</span>
-      </button>
+        <!-- Watchlist -->
+        <a routerLink="/watchlist" class="nav-link" *ngIf="isLoggedIn$ | async">
+          Watchlist
+          <ng-container *ngIf="watchlistCount$ | async as count">
+            <span *ngIf="count > 0" class="watchlist-count">{{ count }}</span>
+          </ng-container>
+        </a>
 
-      <!-- User menu -->
-      <div class="navbar__user" *ngIf="!isLoggedIn">
-        <button class="sign-in-button" (click)="onSignIn()">Sign In</button>
-      </div>
-
-      <div class="navbar__user" *ngIf="isLoggedIn" (mouseenter)="showUserDropdown = true" (mouseleave)="showUserDropdown = false">
-        <span class="user-name">{{ getUserDisplayName() }}</span>
-        <svg class="dropdown-arrow" viewBox="0 0 24 24">
-          <path d="M7,10L12,15L17,10H7Z"/>
-        </svg>
-
-        <div class="user-dropdown" *ngIf="showUserDropdown">
-          <div class="dropdown-header">
-            <div class="user-info">
-              <div class="avatar-large">
-                {{ getUserDisplayName().charAt(0).toUpperCase() }}
-              </div>
-              <div class="user-details">
-                <div class="username">{{ getUserDisplayName() }}</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="dropdown-section">
-            <a class="dropdown-link" (click)="onProfile()">Your activity</a>
-            <a class="dropdown-link" (click)="onWatchlist()">Your watchlist</a>
-            <a class="dropdown-link" (click)="onRatings()">Your ratings</a>
-            <a class="dropdown-link">Your lists</a>
-          </div>
-
-          <div class="dropdown-section">
-            <a class="dropdown-link">Account settings</a>
-            <a class="dropdown-link" (click)="onSettings()">Site preferences</a>
-          </div>
-
-          <div class="dropdown-section">
-            <a class="dropdown-link">Help</a>
-            <a class="dropdown-link" (click)="onLogout()">Sign out</a>
+        <!-- User menu -->
+        <div *ngIf="isLoggedIn$ | async; else loginRegister" 
+             class="user-menu"
+             (mouseenter)="showUserDropdown = true"
+             (mouseleave)="showUserDropdown = false">
+          
+          <a class="nav-link">{{ (user$ | async)?.full_name }}</a>
+          <div class="user-dropdown" *ngIf="showUserDropdown">
+            <a routerLink="/profile" class="dropdown-link">Profile</a>
+            <a (click)="onLogout()" class="dropdown-link">Logout</a>
           </div>
         </div>
-      </div>
 
-      <!-- Language selector -->
-      <div class="navbar__language" (mouseenter)="showLanguageDropdown = true" (mouseleave)="showLanguageDropdown = false">
-        <span class="language-code">{{currentLanguage.toUpperCase()}}</span>
-        <svg class="dropdown-arrow" viewBox="0 0 24 24">
-          <path d="M7,10L12,15L17,10H7Z"/>
-        </svg>
+        <ng-template #loginRegister>
+          <a routerLink="/auth/login" class="nav-link">Sign In</a>
+        </ng-template>
 
-        <div class="language-dropdown" *ngIf="showLanguageDropdown">
-          <div class="language-option"
-               *ngFor="let lang of supportedLanguages"
-               [class.selected]="lang.code === currentLanguage"
-               (click)="switchLanguage(lang.code)">
-            <span>{{ lang.name }} ({{lang.code.toUpperCase()}})</span>
+        <!-- Language selector -->
+        <div class="navbar__language" 
+             (mouseenter)="showLanguageDropdown = true"
+             (mouseleave)="showLanguageDropdown = false">
+          <div class="language-selector-trigger" tabindex="0">
+            <span>{{ currentLanguage.toUpperCase() }}</span>
+            <svg class="dropdown-arrow" viewBox="0 0 24 24">
+              <path d="M7,10L12,15L17,10H7Z"/>
+            </svg>
+          </div>
+          <div class="language-dropdown" *ngIf="showLanguageDropdown">
+            <div class="language-item" *ngFor="let lang of supportedLanguages" (click)="switchLanguage(lang.code)">
+              <span class="language-check">
+                <i class="fas fa-check" *ngIf="currentLanguage === lang.code"></i>
+              </span>
+              {{ lang.name }}
+            </div>
           </div>
         </div>
       </div>

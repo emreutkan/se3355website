@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MovieService } from '../../../../shared/services/movie.service';
 import { Movie } from '../../../../shared/models/movie.model';
@@ -12,11 +12,16 @@ import { MovieCardComponent } from '../../../../shared/components/movie-card/mov
   styleUrl: './popular-movies.component.css'
 })
 export class PopularMoviesComponent implements OnInit {
+  private movieService = inject(MovieService);
+
   popularMovies: Movie[] = [];
   loading = true;
   error: string | null = null;
 
-  constructor(private movieService: MovieService) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.loadPopularMovies();

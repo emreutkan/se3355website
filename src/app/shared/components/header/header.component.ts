@@ -1,13 +1,14 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
+import { Subject, takeUntil, debounceTime, distinctUntilChanged, Observable } from 'rxjs';
 import { LanguageService } from '../../services/language.service';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { MovieService } from '../../services/movie.service';
-import {User} from '../../models/user.model';
+import { User } from '../../models/user.model';
+import { WatchlistService } from '../../services/watchlist.service';
 
 @Component({
   selector: 'app-header',
@@ -17,6 +18,12 @@ import {User} from '../../models/user.model';
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent implements OnInit, OnDestroy {
+  private languageService = inject(LanguageService);
+  private authService = inject(AuthService);
+  private movieService = inject(MovieService);
+  private router = inject(Router);
+  private watchlistService = inject(WatchlistService);
+
   private destroy$ = new Subject<void>();
   private searchInputSubject = new Subject<string>();
 
@@ -52,12 +59,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
     { code: 'tr', name: 'Türkçe', flag: '🇹🇷' }
   ];
 
-  constructor(
-    private languageService: LanguageService,
-    private authService: AuthService,
-    private movieService: MovieService,
-    private router: Router
-  ) {}
+  isLoggedIn$: Observable<boolean>;
+  user$: Observable<User | null>;
+  watchlistCount$: Observable<number>;
+
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
+    this.isLoggedIn$ = this.authService.isLoggedIn$;
+    this.user$ = this.authService.currentUser$;
+    this.watchlistCount$ = this.watchlistService.watchlistCount$;
+  }
 
   ngOnInit() {
     // Subscribe to current user and authentication state

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../shared/services/auth.service';
 import { CommonModule } from '@angular/common';
@@ -60,43 +60,31 @@ import { CommonModule } from '@angular/common';
   `]
 })
 export class GoogleCallbackComponent implements OnInit {
-  error: string | null = null;
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
-  constructor(
-    private route: ActivatedRoute,
-    private authService: AuthService,
-    private router: Router
-  ) { }
+  error: string | null = null;
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       const accessToken = params['access_token'];
       const refreshToken = params['refresh_token'];
-      const error = params['error'];
-
-      if (error) {
-        this.error = `Authentication failed: ${error}. Please try again.`;
-        console.error('Google Auth Error:', error);
-        return;
-      }
 
       if (accessToken) {
-        localStorage.setItem('imdb-token', accessToken);
-        if (refreshToken) {
-          localStorage.setItem('imdb-refresh-token', refreshToken);
-        }
-
+        this.authService.handleGoogleLoginCallback(accessToken, refreshToken);
         this.authService.getCurrentUserProfile().subscribe({
           next: () => {
             this.router.navigate(['/']);
           },
           error: (err) => {
-            this.error = 'Could not fetch your profile after login. Please try again.';
-            console.error('Error fetching profile after Google login:', err);
+            console.error('Failed to fetch user profile after Google login', err);
+            this.error = 'Could not fetch your profile. Please try logging in again.';
+            this.authService.logout();
           }
         });
       } else {
-        this.error = 'Missing authentication details in the redirect. Please try again.';
+        this.error = 'Invalid authentication response from server. Missing tokens.';
       }
     });
   }

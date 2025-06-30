@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
@@ -10,8 +10,13 @@ import {GetUserProfileResponse, GetUserRatingsResponse, GetUserWatchlistResponse
   providedIn: 'root'
 })
 export class UserService {
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+
+  constructor() {}
 
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('imdb-token');
@@ -36,7 +41,7 @@ export class UserService {
 
   // ===== RATINGS =====
 
-  getUserRatings(page: number = 1, size: number = 20): Observable<GetUserRatingsResponse> {
+  getUserRatings(page = 1, size = 20): Observable<GetUserRatingsResponse> {
     return this.http.get<GetUserRatingsResponse>(`${apiUrl}/users/me/ratings?page=${page}&size=${size}`, {
       headers: this.getAuthHeaders()
     }).pipe(catchError(this.handleError));

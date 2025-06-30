@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
@@ -12,15 +12,21 @@ import {
   GetPopularMoviesResponse, GetUserRatingsResponse, GetUserWatchlistResponse, SearchResponse, TypeaheadResponse
 } from '../types/api.responses';
 import {SortOption} from '../models/movie.model';
+import { Movie } from '../models/movie.model';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class MovieService {
-  private readonly apiUrl = 'http://localhost:5000/api'; // Updated to port 5000
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
+  private readonly apiUrl = 'http://localhost:5000/api';
+
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]); // Updated to port 5000
+
+  constructor() {}
 
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('imdb-token');
@@ -32,18 +38,18 @@ export class MovieService {
 
   // ================== MOVIES ==================
 
-  getPopularMovies(limit: number = 10): Observable<GetPopularMoviesResponse> {
+  getPopularMovies(limit = 10): Observable<GetPopularMoviesResponse> {
     return this.http.get<GetPopularMoviesResponse>(`${apiUrl}/movies/popular?limit=${limit}`)
       .pipe(catchError(this.handleError));
   }
 
   getMovies(
-    page: number = 1,
+    page = 1,
     sort: SortOption = 'popularity',
     search?: string,
     year?: number,
     minRating?: number,
-    size: number = 20
+    size = 20
   ): Observable<GetMoviesResponse> {
     let params = `page=${page}&size=${size}&sort=${sort}`;
     if (search) params += `&search=${encodeURIComponent(search)}`;
@@ -54,11 +60,14 @@ export class MovieService {
       .pipe(catchError(this.handleError));
   }
 
-  getMovieDetails(id: string): Observable<GetMovieDetailsResponse> {
-    return this.http.get<GetMovieDetailsResponse>(`${apiUrl}/movies/${id}`);
+  getMovieDetails(movieId: string): Observable<Movie> {
+    const headers = this.getAuthHeaders();
+    return this.http.get<{ movie: Movie }>(`${apiUrl}/movies/${movieId}`, { headers }).pipe(
+      map(response => response.movie)
+    );
   }
 
-  getMovieRatings(movieId: string, page: number = 1, size: number = 20): Observable<GetMovieRatingsResponse> {
+  getMovieRatings(movieId: string, page = 1, size = 20): Observable<GetMovieRatingsResponse> {
     return this.http.get<GetMovieRatingsResponse>(`${apiUrl}/movies/${movieId}/ratings?page=${page}&size=${size}`)
       .pipe(catchError(this.handleError));
   }
@@ -67,7 +76,7 @@ export class MovieService {
 
   // ================== ACTORS ==================
 
-  getActors(page: number = 1, search?: string, size: number = 20): Observable<GetActorsResponse> {
+  getActors(page = 1, search?: string, size = 20): Observable<GetActorsResponse> {
     let params = `page=${page}&size=${size}`;
     if (search) params += `&search=${encodeURIComponent(search)}`;
     return this.http.get<GetActorsResponse>(`${apiUrl}/actors?${params}`)
@@ -80,13 +89,13 @@ export class MovieService {
 
   // ================== USER ==================
 
-  getUserRatings(page: number = 1, size: number = 20): Observable<GetUserRatingsResponse> {
+  getUserRatings(page = 1, size = 20): Observable<GetUserRatingsResponse> {
     return this.http.get<GetUserRatingsResponse>(`${apiUrl}/users/me/ratings?page=${page}&size=${size}`, {
       headers: this.getAuthHeaders()
     }).pipe(catchError(this.handleError));
   }
 
-  getWatchlist(page: number = 1, size: number = 20): Observable<GetUserWatchlistResponse> {
+  getWatchlist(page = 1, size = 20): Observable<GetUserWatchlistResponse> {
     return this.http.get<GetUserWatchlistResponse>(`${apiUrl}/users/me/watchlist?page=${page}&size=${size}`, {
       headers: this.getAuthHeaders()
     }).pipe(catchError(this.handleError));
@@ -126,7 +135,7 @@ export class MovieService {
     return rating >= 1 && rating <= 10 && Number.isInteger(rating);
   }
 
-  convertRatingScale(value: number, fromScale: number = 5, toScale: number = 10): number {
+  convertRatingScale(value: number, fromScale = 5, toScale = 10): number {
     return Math.round((value / fromScale) * toScale);
   }
 
@@ -173,4 +182,6 @@ export class MovieService {
   getPosterUrl(imageUrl: string): string {
     return this.getImageUrl(imageUrl);
   }
+
+  // Typeahead search for movies and people
 }

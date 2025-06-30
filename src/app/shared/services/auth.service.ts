@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject, of, throwError } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
@@ -9,11 +9,17 @@ import {apiUrl} from '../types/api';
   providedIn: 'root'
 })
 export class AuthService {
+  private http = inject(HttpClient);
+
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
+  public isLoggedIn$ = this.currentUser$.pipe(map(user => !!user));
+
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
 
 
-  constructor(private http: HttpClient) {
+  constructor() {
     this.loadUserFromStorage();
   }
 
@@ -162,13 +168,11 @@ export class AuthService {
     return throwError({ message: errorMessage, status: error.status });
   }
 
-  handleGoogleLoginCallback(accessToken: string, refreshToken: string | null, user: User): void {
+  handleGoogleLoginCallback(accessToken: string, refreshToken: string | null): void {
     localStorage.setItem('imdb-token', accessToken);
     if (refreshToken) {
       localStorage.setItem('imdb-refresh-token', refreshToken);
     }
-    localStorage.setItem('imdb-user', JSON.stringify(user));
-    this.currentUserSubject.next(user);
   }
 
   // Password validation

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import {MovieCardComponent} from '../../shared/components/movie-card/movie-card.component';
@@ -7,6 +7,7 @@ import {Movie} from '../../shared/models/movie.model';
 import {MovieService} from '../../shared/services/movie.service';
 import {LanguageService} from '../../shared/services/language.service';
 import { PopularMoviesComponent } from './components/popular-movies/popular-movies.component';
+import { AuthService } from '../../shared/services/auth.service';
 
 
 @Component({
@@ -17,13 +18,17 @@ import { PopularMoviesComponent } from './components/popular-movies/popular-movi
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
+  private movieService = inject(MovieService);
+  private languageService = inject(LanguageService);
+  private router = inject(Router);
+  private authService = inject(AuthService);
+
   @ViewChild('sliderTrack', { static: false }) sliderTrack!: ElementRef;
 
   allMovies: Movie[] = [];
   featuredMovies: Movie[] = [];
   popularMovies: Movie[] = [];
   topRatedMovies: Movie[] = [];
-
 
   isLoading = true;
   error: string | null = null;
@@ -33,14 +38,17 @@ export class HomeComponent implements OnInit {
   canScrollRight = true;
   private currentScrollPosition = 0;
 
-  constructor(
-    public movieService: MovieService,
-    private languageService: LanguageService,
-    private router: Router
-  ) {}
+  isLoggedIn$ = this.authService.isLoggedIn$;
+  user$ = this.authService.currentUser$;
 
-  ngOnInit() {
+  currentPage = 1;
+
+  constructor() {}
+
+  ngOnInit(): void {
     this.loadAllMovies();
+    this.isLoggedIn$ = this.authService.isLoggedIn$;
+    this.user$ = this.authService.currentUser$;
   }
 
   loadAllMovies() {
@@ -108,11 +116,9 @@ export class HomeComponent implements OnInit {
     this.loadAllMovies();
   }
 
-  getSlicedMovies(movies: Movie[], count: number = 12): Movie[] {
+  getSlicedMovies(movies: Movie[], count = 12): Movie[] {
     return movies.slice(0, count);
   }
-
-
 
   // Slider methods
   scrollSlider(direction: 'left' | 'right') {
@@ -153,5 +159,14 @@ export class HomeComponent implements OnInit {
     if (trailerUrl) {
       window.open(trailerUrl, '_blank', 'noopener,noreferrer');
     }
+  }
+
+  onSearch(query: string): void {
+    this.router.navigate(['/search'], { queryParams: { q: query } });
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    // Here you can add logic to fetch movies for the new page
   }
 }

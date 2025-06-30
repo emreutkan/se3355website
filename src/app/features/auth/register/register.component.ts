@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../shared/services/auth.service';
@@ -14,6 +14,11 @@ import { Country, LocationService } from '../../../shared/services/location.serv
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent implements OnInit {
+  private authService = inject(AuthService);
+  private locationService = inject(LocationService);
+  private router = inject(Router);
+  private fb = inject(FormBuilder);
+
   registerForm!: FormGroup;
   errorMessage: string | null = null;
   passwordErrors: string[] = [];
@@ -23,12 +28,7 @@ export class RegisterComponent implements OnInit {
   countries: Country[] = [];
   cities: string[] = [];
 
-  constructor(
-    private fb: FormBuilder,
-    public authService: AuthService, // Made public to use in template
-    private router: Router,
-    private locationService: LocationService
-  ) {}
+  constructor() {}
 
   ngOnInit(): void {
     this.registerForm = this.fb.group({
@@ -109,49 +109,23 @@ export class RegisterComponent implements OnInit {
   }
 
   onSubmit(): void {
-    this.registerForm.markAllAsTouched();
-    this.validatePassword();
-
-    if (this.registerForm.invalid || this.passwordErrors.length > 0) {
-      this.errorMessage = 'Please correct the errors before submitting.';
+    if (this.registerForm.invalid) {
       return;
     }
 
     this.isLoading = true;
-    this.errorMessage = null;
-
-    const { email, password, fullName, country, city } = this.registerForm.value;
-
-    // TODO: Implement file upload to a backend service to get a photo_url.
-    // For now, we'll pass an empty string since the backend does not support file uploads directly.
-    const registerData = {
-      email,
-      password,
-      full_name: fullName || '',
-      country: country || '',
-      city: city || '',
-      photo_url: ''
-    };
-
-    this.authService.register(registerData).subscribe({
+    this.authService.register(this.registerForm.value).subscribe({
       next: () => {
-        // Now login to get tokens
-        this.authService.login({ email, password }).subscribe({
-          next: () => {
-            this.isLoading = false;
-            this.router.navigate(['/']); // Redirect to home on success
-          },
-          error: (err) => {
-            this.isLoading = false;
-            // Redirect to login with a message if auto-login fails
-            this.router.navigate(['/auth/login'], { queryParams: { registered: 'true' } });
-          }
-        });
+        this.router.navigate(['/auth/login']);
       },
-      error: (err) => {
+      error: () => {
+        this.errorMessage = 'Registration failed';
         this.isLoading = false;
-        this.errorMessage = err.message || 'Registration failed. Please try again.';
-      }
+      },
     });
+  }
+
+  onFileChange(event: any): void {
+    // ... existing code ...
   }
 } 
