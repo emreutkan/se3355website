@@ -25,7 +25,8 @@
       <div class="result-items-list" *ngIf="movieResults.length > 0">
         <div class="result-item" *ngFor="let movie of movieResults" (click)="onMovieClick(movie)">
           <div class="item-poster">
-            <div class="poster-placeholder">
+            <img *ngIf="movie.image_url" [src]="movie.image_url" [alt]="getMovieTitle(movie)" class="poster-image">
+            <div class="poster-placeholder" *ngIf="!movie.image_url">
               <i class="fas fa-film"></i>
             </div>
           </div>
@@ -46,7 +47,7 @@
     <div class="results-category-section" *ngIf="searchCategory === 'all' || searchCategory === 'celebs'">
       <h3 class="section-title">People</h3>
       <div class="result-items-list" *ngIf="personResults.length > 0">
-        <div class="result-item" *ngFor="let person of personResults" (click)="onPersonClick(person)">
+        <div class="result-item" *ngFor="let person of personResults">
           <div class="item-poster">
             <img *ngIf="person.photo_url" [src]="person.photo_url" [alt]="person.full_name" class="poster-image">
             <div class="poster-placeholder" *ngIf="!person.photo_url">

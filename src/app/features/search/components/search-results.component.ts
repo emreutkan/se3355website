@@ -7,7 +7,7 @@ import { LanguageService } from '../../../shared/services/language.service';
 import { Movie } from '../../../shared/models/movie.model';
 import { MovieCardComponent } from '../../../shared/components/movie-card/movie-card.component';
 
-interface SearchResult extends Pick<Movie, 'id' | 'title' | 'year' | 'imdb_score' | 'title_tr'> {
+interface SearchResult extends Pick<Movie, 'id' | 'title' | 'year' | 'imdb_score' | 'title_tr' | 'image_url'> {
 }
 
 interface PersonResult {
@@ -107,10 +107,6 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
 
   onMovieClick(movie: SearchResult) {
     this.router.navigate(['/movie', movie.id]);
-  }
-
-  onPersonClick(person: PersonResult) {
-    this.router.navigate(['/actor', person.id]);
   }
 
   getSearchCategoryDisplay(): string {

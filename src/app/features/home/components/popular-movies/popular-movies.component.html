@@ -8,7 +8,14 @@
   </div>
 
   <div class="movies-container" *ngIf="!loading && !error">
-    <div class="movies-carousel">
+    <button class="carousel-arrow left-arrow" 
+            (click)="scrollLeft()" 
+            [disabled]="!canScrollLeft"
+            *ngIf="popularMovies.length > 6">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    
+    <div class="movies-carousel" #carousel>
       <app-movie-card
         *ngFor="let movie of popularMovies; trackBy: trackByMovieId"
         [movie]="movie"
@@ -17,6 +24,13 @@
         class="carousel-card">
       </app-movie-card>
     </div>
+    
+    <button class="carousel-arrow right-arrow" 
+            (click)="scrollRight()" 
+            [disabled]="!canScrollRight"
+            *ngIf="popularMovies.length > 6">
+      <i class="fas fa-chevron-right"></i>
+    </button>
   </div>
 
   <div class="loading-state" *ngIf="loading">

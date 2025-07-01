@@ -148,7 +148,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         const celebs = response.filter((s: any) => s.type === 'actor');
 
         this.typeaheadResults = {
-          titles: titles.map((t: any) => ({ id: t.id, title: t.title, year: t.year, media_type: 'movie' })),
+          titles: titles.map((t: any) => ({ id: t.id, title: t.title, year: t.year, image_url: t.image_url, media_type: 'movie' })),
           celebs: celebs.map((c: any) => ({ id: c.id, full_name: c.title, photo_url: c.image_url, media_type: 'person' }))
         };
 
@@ -167,12 +167,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.showTypeahead = false;
     this.typeaheadResults = { titles: [], celebs: [] };
 
-    // Navigate based on suggestion type
+    // Only navigate for movies, not people
     if (suggestion.media_type === 'movie' || suggestion.media_type === 'tv' || suggestion.title) {
       this.router.navigate(['/movie', suggestion.id]);
-    } else if (suggestion.media_type === 'person' || suggestion.full_name) {
-      this.router.navigate(['/person', suggestion.id]);
     }
+    // Remove navigation for people - they should not be clickable
   }
 
   onSearchBlur() {

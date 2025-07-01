@@ -306,7 +306,7 @@
 .suggestion-title {
   font-size: 15px;
   font-weight: 500;
-  color: #fff;
+  color: #fff !important;
   margin-bottom: 3px;
   white-space: nowrap;
   overflow: hidden;
@@ -316,7 +316,7 @@
 
 .suggestion-meta {
   font-size: 13px;
-  color: #aaa;
+  color: #aaa !important;
   font-family: 'Roboto', sans-serif;
 }
 

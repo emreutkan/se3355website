@@ -63,7 +63,11 @@
               <div class="typeahead-item"
                    *ngFor="let suggestion of typeaheadResults.titles"
                    (mousedown)="selectSuggestion(suggestion)">
-                <div class="suggestion-placeholder">
+                <img *ngIf="suggestion.image_url"
+                     [src]="suggestion.image_url"
+                     [alt]="suggestion.title"
+                     class="suggestion-image">
+                <div class="suggestion-placeholder" *ngIf="!suggestion.image_url">
                   <i class="fas fa-film"></i>
                 </div>
                 <div class="suggestion-content">
@@ -79,8 +83,7 @@
             <ng-container *ngIf="typeaheadResults.celebs.length > 0">
               <div class="typeahead-category-header">{{ 'header.search.celebs' | translate }}</div>
               <div class="typeahead-item"
-                   *ngFor="let suggestion of typeaheadResults.celebs"
-                   (mousedown)="selectSuggestion(suggestion)">
+                   *ngFor="let suggestion of typeaheadResults.celebs">
                 <img *ngIf="suggestion.photo_url"
                      [src]="suggestion.photo_url"
                      [alt]="suggestion.full_name"
