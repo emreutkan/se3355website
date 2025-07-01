@@ -9,13 +9,15 @@ import {
   GetMovieDetailsResponse,
   GetMovieRatingsResponse,
   GetMoviesResponse,
-  GetPopularMoviesResponse, GetUserRatingsResponse, GetUserWatchlistResponse, SearchResponse, TypeaheadResponse, SubmitRatingResponse
+  GetPopularMoviesResponse,
+  SearchResponse,
+  TypeaheadResponse,
+  SubmitRatingResponse
 } from '../types/api.responses';
-import {SortOption} from '../models/movie.model';
-import { Movie } from '../models/movie.model';
-import {LanguageService} from './language.service';
+import { Movie, Rating, SortOption, SearchType } from '../models/movie.model';
+import { ApiResponse, SearchResults, TypeaheadSuggestion, MoviesResponse, RatingsResponse } from '../models/api-response.model';
+import { LanguageService } from './language.service';
 import { SubmitRatingRequest } from '../types/api.requests';
-
 
 @Injectable({
   providedIn: 'root'
@@ -23,12 +25,10 @@ import { SubmitRatingRequest } from '../types/api.requests';
 export class MovieService {
   private http = inject(HttpClient);
   private languageService = inject(LanguageService);
-
   private readonly apiUrl = 'http://localhost:5000/api';
 
   /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]); // Updated to port 5000
-
+  constructor(...args: unknown[]);
   constructor() {}
 
   private getAuthHeaders(): HttpHeaders {
@@ -39,161 +39,133 @@ export class MovieService {
     });
   }
 
-  // ================== MOVIES ==================
-
-  getPopularMovies(limit = 10): Observable<GetPopularMoviesResponse> {
-    const lang = this.languageService.getCurrentLanguage();
-    const params = new HttpParams().set('limit', limit.toString()).set('lang', lang);
-    return this.http.get<GetPopularMoviesResponse>(`${apiUrl}/movies/popular`, { params })
-      .pipe(catchError(this.handleError));
+  // ===== MIRROR BACKEND MovieService.search_movies() =====
+  searchMovies(query: string, searchType: SearchType = 'all'): Observable<SearchResults> {
+    if (!query || query.trim().length < 2) {
+      return of({ query: '', type: searchType, results: { titles: [], people: [] } });
+    }
+    return this.http.get<SearchResults>(`${this.apiUrl}/search`, {
+      params: { q: query, type: searchType }
+    }).pipe(catchError(this.handleError));
   }
 
-  getMovies(
-    page = 1,
-    sort: SortOption = 'popularity',
-    search?: string,
-    year?: number,
-    minRating?: number,
-    size = 20
-  ): Observable<GetMoviesResponse> {
-    const lang = this.languageService.getCurrentLanguage();
-    let params = `page=${page}&size=${size}&sort=${sort}&lang=${lang}`;
-    if (search) params += `&search=${encodeURIComponent(search)}`;
-    if (year) params += `&year=${year}`;
-    if (minRating) params += `&min_rating=${minRating}`;
-
-    return this.http.get<GetMoviesResponse>(`${apiUrl}/movies?${params}`)
-      .pipe(catchError(this.handleError));
-  }
-
-  getMovieDetails(movieId: string): Observable<Movie> {
-    const headers = this.getAuthHeaders();
-    const lang = this.languageService.getCurrentLanguage();
-    const params = new HttpParams().set('lang', lang);
-    return this.http.get<{ movie: Movie }>(`${apiUrl}/movies/${movieId}`, { headers, params }).pipe(
-      map(response => response.movie)
+  // ===== MIRROR BACKEND MovieService.get_typeahead_suggestions() =====
+  getTypeaheadSuggestions(query: string): Observable<TypeaheadSuggestion[]> {
+    if (!query || query.trim().length < 3) {
+      return of([]);
+    }
+    return this.http.get<{ suggestions: TypeaheadSuggestion[] }>(`${this.apiUrl}/search/typeahead`, {
+      params: { q: query }
+    }).pipe(
+      map(response => response.suggestions),
+      catchError(this.handleError)
     );
   }
 
-  getMovieRatings(movieId: string, page = 1, size = 20): Observable<GetMovieRatingsResponse> {
-    return this.http.get<GetMovieRatingsResponse>(`${apiUrl}/movies/${movieId}/ratings?page=${page}&size=${size}`)
-      .pipe(catchError(this.handleError));
-  }
-
-  submitRating(movieId: string, ratingData: SubmitRatingRequest): Observable<SubmitRatingResponse> {
-    return this.http.post<SubmitRatingResponse>(`${apiUrl}/movies/${movieId}/ratings`, ratingData, {
+  // ===== MIRROR BACKEND movie rating functionality =====
+  rateMovie(movieId: string, rating: number, comment?: string): Observable<ApiResponse<Rating>> {
+    const ratingData: SubmitRatingRequest = { rating };
+    if (comment) {
+      ratingData.comment = comment;
+    }
+    
+    return this.http.post<ApiResponse<Rating>>(`${this.apiUrl}/movies/${movieId}/ratings`, ratingData, {
       headers: this.getAuthHeaders()
     }).pipe(catchError(this.handleError));
   }
 
-  // ================== ACTORS ==================
+  // ===== MIRROR BACKEND get movie ratings =====
+  getMovieRatings(movieId: string, page: number = 1, size: number = 20): Observable<RatingsResponse> {
+    return this.http.get<RatingsResponse>(`${this.apiUrl}/movies/${movieId}/ratings`, {
+      params: { page: page.toString(), size: size.toString() }
+    }).pipe(catchError(this.handleError));
+  }
 
+  // ===== NO BUSINESS LOGIC - just API calls =====
+  getMovies(filters: {
+    page?: number;
+    sort?: SortOption;
+    search?: string;
+    year?: number;
+    minRating?: number;
+    size?: number;
+  } = {}): Observable<MoviesResponse> {
+    const {
+      page = 1,
+      sort = 'popularity',
+      search,
+      year,
+      minRating,
+      size = 20
+    } = filters;
+
+    const lang = this.languageService.getCurrentLanguage();
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sort', sort)
+      .set('lang', lang);
+
+    if (search) params = params.set('search', search);
+    if (year) params = params.set('year', year.toString());
+    if (minRating) params = params.set('min_rating', minRating.toString());
+
+    return this.http.get<MoviesResponse>(`${this.apiUrl}/movies`, { params })
+      .pipe(catchError(this.handleError));
+  }
+
+  getMovieDetail(movieId: string): Observable<Movie> {
+    const headers = this.getAuthHeaders();
+    const lang = this.languageService.getCurrentLanguage();
+    const params = new HttpParams().set('lang', lang);
+    
+    return this.http.get<{ movie: Movie }>(`${this.apiUrl}/movies/${movieId}`, { headers, params })
+      .pipe(
+        map(response => response.movie),
+        catchError(this.handleError)
+      );
+  }
+
+  getPopularMovies(limit = 10): Observable<GetPopularMoviesResponse> {
+    const lang = this.languageService.getCurrentLanguage();
+    const params = new HttpParams()
+      .set('limit', limit.toString())
+      .set('lang', lang);
+    
+    return this.http.get<GetPopularMoviesResponse>(`${this.apiUrl}/movies/popular`, { params })
+      .pipe(catchError(this.handleError));
+  }
+
+  // ===== ACTOR ENDPOINTS =====
   getActors(page = 1, search?: string, size = 20): Observable<GetActorsResponse> {
-    let params = `page=${page}&size=${size}`;
-    if (search) params += `&search=${encodeURIComponent(search)}`;
-    return this.http.get<GetActorsResponse>(`${apiUrl}/actors?${params}`)
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    
+    if (search) params = params.set('search', search);
+    
+    return this.http.get<GetActorsResponse>(`${this.apiUrl}/actors`, { params })
       .pipe(catchError(this.handleError));
   }
 
   getActorDetails(id: string): Observable<GetActorDetailsResponse> {
-    return this.http.get<GetActorDetailsResponse>(`${apiUrl}/actors/${id}`);
-  }
-
-  // ================== USER ==================
-
-  getUserRatings(page = 1, size = 20): Observable<GetUserRatingsResponse> {
-    return this.http.get<GetUserRatingsResponse>(`${apiUrl}/users/me/ratings?page=${page}&size=${size}`, {
-      headers: this.getAuthHeaders()
-    }).pipe(catchError(this.handleError));
-  }
-
-  getWatchlist(page = 1, size = 20): Observable<GetUserWatchlistResponse> {
-    return this.http.get<GetUserWatchlistResponse>(`${apiUrl}/users/me/watchlist?page=${page}&size=${size}`, {
-      headers: this.getAuthHeaders()
-    }).pipe(catchError(this.handleError));
-  }
-
-  toggleWatchlist(movieId: string): Observable<{ msg: string }> {
-    return this.http.post<{ msg: string }>(`${apiUrl}/users/me/watchlist/${movieId}`, {}, {
-      headers: this.getAuthHeaders()
-    }).pipe(catchError(this.handleError));
-  }
-
-  // ================== SEARCH ==================
-
-  search(query: string, type: 'all' | 'title' | 'summary' | 'people' = 'all'): Observable<SearchResponse> {
-    if (!query || query.trim().length < 2) {
-      return of({ query: '', type, results: { titles: [], people: [] } });
-    }
-    return this.http.get<SearchResponse>(`${apiUrl}/search?q=${encodeURIComponent(query)}&type=${type}`)
+    return this.http.get<GetActorDetailsResponse>(`${this.apiUrl}/actors/${id}`)
       .pipe(catchError(this.handleError));
   }
 
-  searchTypeahead(query: string): Observable<TypeaheadResponse> {
-    if (!query || query.trim().length < 3) {
-      return of({ query: '', suggestions: [] });
-    }
-    return this.http.get<TypeaheadResponse>(`${apiUrl}/search/typeahead?q=${encodeURIComponent(query)}`)
-      .pipe(catchError(this.handleError));
-  }
-
-  // ================== HELPERS ==================
-
-  isAuthenticated(): boolean {
-    return !!localStorage.getItem('imdb-token');
-  }
-
-  validateRating(rating: number): boolean {
-    return rating >= 1 && rating <= 10 && Number.isInteger(rating);
-  }
-
-  convertRatingScale(value: number, fromScale = 5, toScale = 10): number {
-    return Math.round((value / fromScale) * toScale);
-  }
-
-  formatRating(value: number): string {
-    return value.toFixed(1);
-  }
-
-  formatRuntime(minutes: number): string {
-    if (!minutes) return '';
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-    return h ? `${h}h ${m}m` : `${m}m`;
-  }
-
-  formatReleaseDate(dateStr: string): string {
-    if (!dateStr) return '';
-    return new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-  }
-
-  getImageUrl(url: string): string {
-    return url || '/assets/images/no-image.png';
-  }
-
-  // ================== ERRORS ==================
-
+  // ===== ERROR HANDLING =====
   private handleError = (error: HttpErrorResponse): Observable<never> => {
-    let message = 'An unexpected error occurred';
-    if (error.error instanceof ErrorEvent) {
-      message = error.error.message;
-    } else {
-      switch (error.status) {
-        case 400: message = error.error?.msg || 'Bad request'; break;
-        case 401: message = 'Authentication required'; break;
-        case 403: message = 'Access forbidden'; break;
-        case 404: message = error.error?.msg || 'Not found'; break;
-        case 500: message = 'Server error'; break;
-        default: message = error.error?.msg || `Error ${error.status}`;
-      }
-    }
-    console.error('API Error:', error);
-    return throwError(() => new Error(message));
+    console.error('MovieService error:', error);
+    let msg = 'An unexpected error occurred';
+    
+    if (error.status === 0) msg = 'Cannot connect to server.';
+    else if (error.status === 400) msg = error.error?.msg || 'Bad request';
+    else if (error.status === 401) msg = 'Authentication required';
+    else if (error.status === 403) msg = 'Access forbidden';
+    else if (error.status === 404) msg = 'Resource not found';
+    else if (error.status === 500) msg = 'Server error';
+    else if (error.error?.msg) msg = error.error.msg;
+
+    return throwError(() => ({ message: msg, status: error.status, error: error.error }));
   };
-
-  getPosterUrl(imageUrl: string): string {
-    return this.getImageUrl(imageUrl);
-  }
-
-  // Typeahead search for movies and people
 }

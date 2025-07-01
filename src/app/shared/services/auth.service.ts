@@ -2,23 +2,22 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject, of, throwError } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
-import {AuthResponse, LoginCredentials, RegisterData, RegisterResponse, User} from '../models/user.model';
-import {apiUrl} from '../types/api';
+import { AuthResponse, LoginRequest, RegisterRequest, RegisterResponse, User } from '../models/user.model';
+import { ApiResponse } from '../models/api-response.model';
+import { apiUrl } from '../types/api';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private http = inject(HttpClient);
-
   private currentUserSubject = new BehaviorSubject<User | null>(null);
+  
   public currentUser$ = this.currentUserSubject.asObservable();
   public isLoggedIn$ = this.currentUser$.pipe(map(user => !!user));
 
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);
-
-
   constructor() {
     this.loadUserFromStorage();
   }
@@ -46,33 +45,31 @@ export class AuthService {
     });
   }
 
-  login(credentials: LoginCredentials): Observable<AuthResponse> {
+  // ===== MIRROR BACKEND AuthService.register() =====
+  register(userData: RegisterRequest): Observable<RegisterResponse> {
+    return this.http.post<RegisterResponse>(`${apiUrl}/auth/register`, userData)
+      .pipe(catchError(this.handleAuthError));
+  }
+
+  // ===== MIRROR BACKEND AuthService.login() =====
+  login(credentials: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${apiUrl}/auth/login`, credentials)
       .pipe(
         tap(response => this.handleAuthSuccess(response)),
-        catchError(error => this.handleAuthError(error))
+        catchError(this.handleAuthError)
       );
   }
 
-  register(userData: RegisterData): Observable<RegisterResponse> {
-    const formData = new FormData();
-    const toSnakeCase = (str: string) => str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
-
-    Object.keys(userData).forEach(key => {
-      const snakeCaseKey = toSnakeCase(key);
-      const value = userData[key as keyof RegisterData];
-      if (value !== null && value !== undefined) {
-        formData.append(snakeCaseKey, value as string | Blob);
-      }
-    });
-
-    return this.http.post<RegisterResponse>(`${apiUrl}/auth/register`, formData)
+  // ===== MIRROR BACKEND AuthService.google_auth() =====
+  googleAuth(token: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${apiUrl}/auth/google`, { token })
       .pipe(
-        catchError(error => this.handleAuthError(error))
+        tap(response => this.handleAuthSuccess(response)),
+        catchError(this.handleAuthError)
       );
   }
 
-  // Google OAuth login initiation
+  // ===== Google OAuth flow initiation =====
   initiateGoogleLogin(): void {
     const clientId = '554088359923-ivcsq00lju65qvg7op946eij0l88vl3r.apps.googleusercontent.com';
     const redirectUri = 'http://localhost:5000/api/auth/google/callback';
@@ -88,15 +85,16 @@ export class AuthService {
     window.location.href = authUrl;
   }
 
-  // Handle Google OAuth callback (if needed for client-side handling)
+  // ===== Handle Google OAuth callback =====
   handleGoogleCallback(code: string): Observable<AuthResponse> {
     return this.http.get<AuthResponse>(`${apiUrl}/auth/google/callback?code=${code}`)
       .pipe(
         tap(response => this.handleAuthSuccess(response)),
-        catchError(error => this.handleAuthError(error))
+        catchError(this.handleAuthError)
       );
   }
 
+  // ===== MIRROR BACKEND AuthService.logout() =====
   logout(): Observable<any> {
     const headers = this.getAuthHeaders();
 
@@ -111,6 +109,7 @@ export class AuthService {
       );
   }
 
+  // ===== MIRROR BACKEND AuthService.refresh_token() =====
   refreshToken(): Observable<{ access_token: string }> {
     const refreshToken = localStorage.getItem('imdb-refresh-token');
     const headers = new HttpHeaders({
@@ -129,6 +128,7 @@ export class AuthService {
       );
   }
 
+  // ===== MIRROR BACKEND AuthService.get_current_user() =====
   getCurrentUserProfile(): Observable<User> {
     const headers = this.getAuthHeaders();
 
@@ -139,11 +139,11 @@ export class AuthService {
           this.currentUserSubject.next(user);
           localStorage.setItem('imdb-user', JSON.stringify(user));
         }),
-        catchError(error => this.handleAuthError(error))
+        catchError(this.handleAuthError)
       );
   }
 
-
+  // ===== AUTHENTICATION STATE =====
   isLoggedIn(): boolean {
     return this.currentUserSubject.value !== null && localStorage.getItem('imdb-token') !== null;
   }
@@ -152,6 +152,7 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
+  // ===== HELPER METHODS (UI state management) =====
   private clearLocalStorage(): void {
     localStorage.removeItem('imdb-token');
     localStorage.removeItem('imdb-user');
@@ -167,8 +168,16 @@ export class AuthService {
     });
   }
 
-  private handleAuthError(error: any): Observable<never> {
-    console.error('Auth error:', error);
+  handleGoogleLoginCallback(accessToken: string, refreshToken: string | null): void {
+    localStorage.setItem('imdb-token', accessToken);
+    if (refreshToken) {
+      localStorage.setItem('imdb-refresh-token', refreshToken);
+    }
+  }
+
+  // ===== ERROR HANDLING =====
+  private handleAuthError = (error: any): Observable<never> => {
+    console.error('AuthService error:', error);
 
     let errorMessage = 'An error occurred';
     if (error.error?.msg) {
@@ -177,62 +186,6 @@ export class AuthService {
       errorMessage = error.message;
     }
 
-    return throwError({ message: errorMessage, status: error.status });
-  }
-
-  handleGoogleLoginCallback(accessToken: string, refreshToken: string | null): void {
-    localStorage.setItem('imdb-token', accessToken);
-    if (refreshToken) {
-      localStorage.setItem('imdb-refresh-token', refreshToken);
-    }
-  }
-
-  // Password validation
-  validatePassword(password: string): { valid: boolean; errors: string[] } {
-    const errors: string[] = [];
-
-    if (password.length < 8) {
-      errors.push('Password must be at least 8 characters long');
-    }
-
-    if (!/\d/.test(password)) {
-      errors.push('Password must contain at least one number');
-    }
-
-    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
-      errors.push('Password must contain at least one special character');
-    }
-
-    return {
-      valid: errors.length === 0,
-      errors
-    };
-  }
-
-  // File upload validation for profile photos
-  validatePhoto(file: File): { valid: boolean; error?: string } {
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-
-    if (file.size > maxSize) {
-      return { valid: false, error: 'File size must be less than 5MB' };
-    }
-
-    if (!allowedTypes.includes(file.type)) {
-      return { valid: false, error: 'Only JPEG, PNG, and WebP images are allowed' };
-    }
-
-    return { valid: true };
-  }
-
-  // Check if email is valid
-  validateEmail(email: string): boolean {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  }
-
-  // Check if country code is valid (2-letter ISO code)
-  validateCountryCode(country: string): boolean {
-    return /^[A-Z]{2}$/.test(country);
-  }
+    return throwError(() => ({ message: errorMessage, status: error.status }));
+  };
 }

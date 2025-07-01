@@ -1,13 +1,14 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { MovieService } from '../../../shared/services/movie.service';
 import { AuthService } from '../../../shared/services/auth.service';
-import { Movie } from '../../../shared/models/movie.model';
-import { GetMovieRatingsResponse } from '../../../shared/types/api.responses';
-import { Observable } from 'rxjs';
+import { FormatUtilsService } from '../../../shared/services/format-utils.service';
+import { Movie, Rating } from '../../../shared/models/movie.model';
+import { RatingsResponse } from '../../../shared/models/api-response.model';
+import { Observable, BehaviorSubject } from 'rxjs';
 
 interface RatingDistribution {
   rating: number;
@@ -26,132 +27,106 @@ export class MovieRatingsComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private movieService = inject(MovieService);
   private authService = inject(AuthService);
+  private formatUtils = inject(FormatUtilsService);
   private fb = inject(FormBuilder);
 
-  movie: Movie | null = null;
-  movieRatings: GetMovieRatingsResponse | null = null;
-  isLoggedIn$: Observable<boolean> = this.authService.isLoggedIn$;
+  // ONLY UI state - NO business logic
+  movie$ = new BehaviorSubject<Movie | null>(null);
+  ratings$ = new BehaviorSubject<Rating[]>([]);
+  currentUser$ = this.authService.currentUser$;
   
-  // Rating form
-  ratingForm: FormGroup;
-  selectedRating = 0;
-  hoverRatingValue = 0;
-  isSubmittingRating = false;
+  // Rating form - NO business logic
+  ratingForm: FormGroup = this.fb.group({
+    rating: [null, [Validators.required, Validators.min(1), Validators.max(10)]],
+    comment: ['']
+  });
   
-  // Distribution
+  // UI state
   selectedCountry = 'all';
   availableCountries: string[] = [];
   ratingDistribution: RatingDistribution[] = [];
-
-  constructor() {
-    this.ratingForm = this.fb.group({
-      comment: ['']
-    });
-  }
+  isSubmittingRating = false;
 
   ngOnInit(): void {
+    // NO business logic - just coordinate service calls
     const movieId = this.route.snapshot.paramMap.get('id');
     if (movieId) {
       this.loadMovieDetails(movieId);
-      this.loadRatings();
+      this.loadRatings(movieId);
     }
   }
 
-  private loadMovieDetails(movieId: string): void {
-    this.movieService.getMovieDetails(movieId).subscribe(movie => {
-      this.movie = movie;
-    });
-  }
+  // NO business logic - delegate to service
+  onSubmitRating(): void {
+    if (this.ratingForm.valid && !this.isSubmittingRating) {
+      const movieId = this.route.snapshot.paramMap.get('id');
+      if (!movieId) return;
 
-  loadRatings(page = 1): void {
-    const movieId = this.route.snapshot.paramMap.get('id');
-    if (movieId) {
-      this.movieService.getMovieRatings(movieId, page).subscribe(response => {
-        this.movieRatings = response;
-        this.setupCountries();
-        this.calculateRatingDistribution();
+      this.isSubmittingRating = true;
+      const { rating, comment } = this.ratingForm.value;
+      
+      this.movieService.rateMovie(movieId, rating, comment).subscribe({
+        next: () => {
+          this.ratingForm.reset();
+          this.loadRatings(movieId); // Refresh ratings
+          this.isSubmittingRating = false;
+        },
+        error: (error) => {
+          this.handleError(error);
+          this.isSubmittingRating = false;
+        }
       });
     }
-  }
-
-  private setupCountries(): void {
-    if (this.movieRatings?.distribution) {
-      this.availableCountries = this.movieRatings.distribution.map(d => d.country);
-    }
-  }
-
-  selectRating(rating: number): void {
-    this.selectedRating = rating;
-  }
-
-  hoverRating(rating: number): void {
-    this.hoverRatingValue = rating;
-  }
-
-  onSubmitRating(): void {
-    if (!this.selectedRating || this.isSubmittingRating) return;
-    
-    const movieId = this.route.snapshot.paramMap.get('id');
-    if (!movieId) return;
-
-    this.isSubmittingRating = true;
-    
-    const ratingData = {
-      rating: this.selectedRating,
-      comment: this.ratingForm.get('comment')?.value || undefined
-    };
-
-    this.movieService.submitRating(movieId, ratingData).subscribe({
-      next: (response) => {
-        console.log('Rating submitted successfully:', response);
-        this.resetForm();
-        this.loadRatings(); // Reload ratings to show the new one
-        this.isSubmittingRating = false;
-      },
-      error: (error) => {
-        console.error('Error submitting rating:', error);
-        this.isSubmittingRating = false;
-      }
-    });
-  }
-
-  resetForm(): void {
-    this.selectedRating = 0;
-    this.hoverRatingValue = 0;
-    this.ratingForm.reset();
-  }
-
-  getCharacterCount(): number {
-    return this.ratingForm.get('comment')?.value?.length || 0;
   }
 
   onCountryChange(): void {
     this.calculateRatingDistribution();
   }
 
-  private calculateRatingDistribution(): void {
-    if (!this.movieRatings) return;
-
-    if (this.selectedCountry === 'all') {
-      // Calculate overall distribution
-      const totalVotes = this.movieRatings.distribution.reduce((sum, d) => sum + d.votes, 0);
-      this.generateDistributionBars(totalVotes);
-    } else {
-      // Calculate for specific country
-      const countryData = this.movieRatings.distribution.find(d => d.country === this.selectedCountry);
-      if (countryData) {
-        this.generateDistributionBars(countryData.votes);
-      }
-    }
+  // DELEGATE formatting to FormatUtilsService
+  formatDate(dateString: string): string {
+    return this.formatUtils.formatReleaseDate(dateString);
   }
 
-  private generateDistributionBars(totalVotes: number): void {
-    // Generate mock distribution data (in real app, this would come from API)
+  formatRating(rating: number): string {
+    return this.formatUtils.formatRating(rating);
+  }
+
+  validateRating(rating: number): boolean {
+    return this.formatUtils.validateRating(rating);
+  }
+
+  // NO business logic - just UI coordination
+  private loadMovieDetails(movieId: string): void {
+    this.movieService.getMovieDetail(movieId).subscribe({
+      next: (movie: Movie) => this.movie$.next(movie),
+      error: (error) => this.handleError(error)
+    });
+  }
+
+  private loadRatings(movieId: string, page = 1): void {
+    this.movieService.getMovieRatings(movieId, page).subscribe({
+      next: (response: RatingsResponse) => {
+        this.ratings$.next(response.ratings);
+        this.setupCountries(response.distribution);
+        this.calculateRatingDistribution();
+      },
+      error: (error) => this.handleError(error)
+    });
+  }
+
+  private setupCountries(distribution: any[]): void {
+    this.availableCountries = distribution.map(d => d.country);
+  }
+
+  private calculateRatingDistribution(): void {
+    // This would ideally come from the backend service
+    // For now, generate mock data
     this.ratingDistribution = [];
     
     for (let rating = 10; rating >= 1; rating--) {
       const percentage = Math.random() * 20; // Mock percentages
-      const votes = Math.floor((percentage / 100) * totalVotes);
+      const votes = Math.floor(percentage * 100);
       
       this.ratingDistribution.push({
         rating,
@@ -171,25 +146,8 @@ export class MovieRatingsComponent implements OnInit {
     }
   }
 
-  getStarArray(rating: number): string[] {
-    const fullStars = Math.floor(rating / 2);
-    const halfStar = rating % 2 >= 1;
-    const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
-    
-    const stars: string[] = [];
-    for (let i = 0; i < fullStars; i++) stars.push('filled');
-    if (halfStar) stars.push('half');
-    for (let i = 0; i < emptyStars; i++) stars.push('empty');
-    
-    return stars;
-  }
-
-  formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    });
+  private handleError(error: any): void {
+    console.error('MovieRatingsComponent error:', error);
+    // Handle error display in UI
   }
 }

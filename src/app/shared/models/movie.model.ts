@@ -1,4 +1,4 @@
-// api.model.ts
+// movie.interface.ts - Models that exactly mirror backend models
 
 export interface Actor {
   id: string;
@@ -10,53 +10,53 @@ export interface Actor {
 }
 
 export interface Movie {
-  trailer_url: string;
-  rating_count: number;
-  runtime_min: number;
-  id: string;
+  id: string;                    // UUID
   title: string;
   title_tr?: string;
+  original_title?: string;
   year: number;
-  categories: string[];
-  director?: string[];
-  writers?: string[];
   summary: string;
   summary_tr?: string;
-  imdb_score: number;
-  metascore: number;
-  image_url: string;
-  actors?: Actor[];
+  imdb_score: number;            // 0.0-10.0
+  metascore?: number;
+  trailer_url?: string;
+  image_url?: string;
+  runtime_min?: number;
+  release_date?: string;         // ISO date
   language?: string;
-  release_date?: string;
-  popularity?: Popularity;
+  created_at?: string;           // ISO datetime
+  actors?: Actor[];
+  categories?: string[];
+  directors?: string[];
+  writers?: string[];
+  rating_count?: number;
+  popularity?: PopularitySnapshot;
   rating_distribution?: RatingDistributionItem[];
-  created_at?: string;
-  original_title?: string;
 }
 
 export interface Rating {
   id: string;
-  user_id: string;
   movie_id: string;
-  rating: number;
-  review?: string;
+  user_id: string;
+  rating: number;                // 1-10
+  comment?: string;              // COMMENTS ARE HERE (renamed from review)
+  voter_country: string;
   created_at: string;
   updated_at?: string;
+  user?: {
+    full_name: string;
+    country: string;
+  };
 }
 
 export interface PopularitySnapshot {
-  id: string; // UUID
+  id: string;                    // UUID
   movie_id: string;
-  snapshot_date: string; // ISO string (date when popularity calculated)
+  snapshot_date: string;         // ISO string (date when popularity calculated)
   vote_count: number;
   average_rating: number;
-}
-
-export interface Popularity {
-  movie_id: string;
-  rank: number;
-  score: number;
-  snapshot_date: string;
+  rank?: number;
+  score?: number;
 }
 
 export interface RatingDistributionItem {
@@ -65,4 +65,6 @@ export interface RatingDistributionItem {
   votes: number;
 }
 
+// Type definitions for API usage
 export type SortOption = 'popularity' | 'rating' | 'year' | 'title';
+export type SearchType = 'all' | 'title' | 'summary' | 'people';

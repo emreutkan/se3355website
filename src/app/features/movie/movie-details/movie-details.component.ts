@@ -1,18 +1,21 @@
 import { Component, OnInit, inject, OnDestroy } from '@angular/core';
 import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { MovieService } from '../../../shared/services/movie.service';
-import { Actor, Movie } from '../../../shared/models/movie.model';
-import { CommonModule, DecimalPipe } from '@angular/common';
+import { UserService } from '../../../shared/services/user.service';
+import { FormatUtilsService } from '../../../shared/services/format-utils.service';
 import { WatchlistService } from '../../../shared/services/watchlist.service';
-import { Observable, of, Subscription } from 'rxjs';
+import { Movie, Rating } from '../../../shared/models/movie.model';
+import { CommonModule, DecimalPipe } from '@angular/common';
+import { Observable, of, Subscription, BehaviorSubject } from 'rxjs';
 import { AuthService } from "../../../shared/services/auth.service";
 import { LanguageService } from '../../../shared/services/language.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-movie-details',
   standalone: true,
-  imports: [CommonModule, RouterLink, DecimalPipe],
+  imports: [CommonModule, RouterLink, DecimalPipe, ReactiveFormsModule],
   templateUrl: './movie-details.component.html',
   styleUrls: ['./movie-details.component.css']
 })
@@ -20,29 +23,35 @@ export class MovieDetailsComponent implements OnInit, OnDestroy {
   private route: ActivatedRoute = inject(ActivatedRoute);
   private router: Router = inject(Router);
   private movieService: MovieService = inject(MovieService);
+  private userService: UserService = inject(UserService);
   private watchlistService: WatchlistService = inject(WatchlistService);
   private authService: AuthService = inject(AuthService);
   private languageService: LanguageService = inject(LanguageService);
+  private formatUtils: FormatUtilsService = inject(FormatUtilsService);
   private sanitizer: DomSanitizer = inject(DomSanitizer);
+  private fb: FormBuilder = inject(FormBuilder);
 
-  movie: Movie | null = null;
+  // ONLY UI state and presentation logic
+  movie$ = new BehaviorSubject<Movie | null>(null);
+  ratings$ = new BehaviorSubject<Rating[]>([]);
+  currentUser$ = this.authService.currentUser$;
   isInWatchlist$: Observable<boolean> = of(false);
-  isLoggedIn$: Observable<boolean> = this.authService.isLoggedIn$;
   trailerUrl: SafeResourceUrl | null = null;
-
-  private langSubscription!: Subscription;
   currentLang = 'en';
+  private langSubscription!: Subscription;
+
+  // Rating form - NO business logic
+  ratingForm: FormGroup = this.fb.group({
+    rating: [null, [Validators.required, Validators.min(1), Validators.max(10)]],
+    comment: ['']  // Comment field for ratings
+  });
 
   ngOnInit(): void {
+    // NO business logic - just coordinate service calls
     const movieId = this.route.snapshot.paramMap.get('id');
     if (movieId) {
-      this.movieService.getMovieDetails(movieId).subscribe((movieData: Movie) => {
-        this.movie = this.addDummyDataForUi(movieData);
-        if (this.movie?.trailer_url) {
-          this.trailerUrl = this.getSafeTrailerUrl(this.movie.trailer_url);
-        }
-        this.isInWatchlist$ = this.watchlistService.isMovieInWatchlist(this.movie.id);
-      });
+      this.loadMovieData(movieId);
+      this.loadRatings(movieId);
     }
 
     this.currentLang = this.languageService.getCurrentLanguage();
@@ -57,21 +66,37 @@ export class MovieDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
-  formatRuntime(minutes: number): string {
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-    return `${hours}h ${remainingMinutes}m`;
+  // NO business logic - delegate to service
+  onSubmitRating(): void {
+    if (this.ratingForm.valid && this.movie$.value) {
+      const movieId = this.movie$.value.id;
+      const { rating, comment } = this.ratingForm.value;
+      
+      this.movieService.rateMovie(movieId, rating, comment).subscribe({
+        next: () => {
+          this.ratingForm.reset();
+          this.loadRatings(movieId); // Refresh ratings
+        },
+        error: (error) => this.handleError(error)
+      });
+    }
   }
 
+  // NO business logic - delegate to service
   toggleWatchlist(): void {
-    if (this.movie) {
-      // Check if user is authenticated before allowing watchlist action
+    const movie = this.movie$.value;
+    if (movie) {
       if (!this.authService.isLoggedIn()) {
         this.router.navigate(['/auth/login']);
         return;
       }
       
-      this.watchlistService.toggleWatchlist(this.movie.id).subscribe();
+      this.userService.toggleWatchlist(movie.id).subscribe({
+        next: () => {
+          this.isInWatchlist$ = this.watchlistService.isMovieInWatchlist(movie.id);
+        },
+        error: (error) => this.handleError(error)
+      });
     }
   }
 
@@ -81,9 +106,48 @@ export class MovieDetailsComponent implements OnInit, OnDestroy {
       return;
     }
     
-    if (this.movie) {
-      this.router.navigate(['/ratings', this.movie.id]);
+    const movie = this.movie$.value;
+    if (movie) {
+      this.router.navigate(['/ratings', movie.id]);
     }
+  }
+
+  // DELEGATE business logic to FormatUtilsService
+  formatRuntime(minutes: number): string {
+    return this.formatUtils.formatRuntime(minutes);
+  }
+
+  getPosterUrl(imageUrl: string): string {
+    return this.formatUtils.getPosterUrl(imageUrl);
+  }
+
+  formatRating(rating: number): string {
+    return this.formatUtils.formatRating(rating);
+  }
+
+  formatReleaseDate(dateStr: string): string {
+    return this.formatUtils.formatReleaseDate(dateStr);
+  }
+
+  // NO business logic - just UI coordination
+  private loadMovieData(movieId: string): void {
+    this.movieService.getMovieDetail(movieId).subscribe({
+      next: (movie: Movie) => {
+        this.movie$.next(movie);
+        if (movie.trailer_url) {
+          this.trailerUrl = this.getSafeTrailerUrl(movie.trailer_url);
+        }
+        this.isInWatchlist$ = this.watchlistService.isMovieInWatchlist(movie.id);
+      },
+      error: (error) => this.handleError(error)
+    });
+  }
+
+  private loadRatings(movieId: string): void {
+    this.movieService.getMovieRatings(movieId).subscribe({
+      next: (response) => this.ratings$.next(response.ratings),
+      error: (error) => this.handleError(error)
+    });
   }
 
   private getSafeTrailerUrl(url: string): SafeResourceUrl {
@@ -100,28 +164,8 @@ export class MovieDetailsComponent implements OnInit, OnDestroy {
     return this.sanitizer.bypassSecurityTrustResourceUrl(embedUrl);
   }
 
-  private addDummyDataForUi(movie: Movie): Movie {
-    return {
-      ...movie,
-      popularity: movie.popularity || {
-        movie_id: movie.id,
-        rank: Math.floor(Math.random() * 1000) + 1, // Random rank for demo
-        score: Math.random() * 100,
-        snapshot_date: new Date().toISOString()
-      }
-    };
-  }
-
-  getPopularityRanking(): string {
-    if (this.movie?.popularity?.rank) {
-      return `#${this.movie.popularity.rank}`;
-    }
-    return '';
-  }
-
-  getPopularityTrend(): string {
-    // This would normally come from comparing current vs previous rankings
-    const trends = ['↗️ Up', '↘️ Down', '→ Same'];
-    return trends[Math.floor(Math.random() * trends.length)];
+  private handleError(error: any): void {
+    console.error('MovieDetailsComponent error:', error);
+    // Handle error display in UI
   }
 } 
