@@ -5,17 +5,17 @@ import { UserService } from '../../../shared/services/user.service';
 import { FormatUtilsService } from '../../../shared/services/format-utils.service';
 import { WatchlistService } from '../../../shared/services/watchlist.service';
 import { Movie, Rating } from '../../../shared/models/movie.model';
-import { CommonModule, DecimalPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Observable, of, Subscription, BehaviorSubject } from 'rxjs';
 import { AuthService } from "../../../shared/services/auth.service";
 import { LanguageService } from '../../../shared/services/language.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+
 
 @Component({
   selector: 'app-movie-details',
   standalone: true,
-  imports: [CommonModule, RouterLink, DecimalPipe, ReactiveFormsModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './movie-details.component.html',
   styleUrls: ['./movie-details.component.css']
 })
@@ -29,29 +29,20 @@ export class MovieDetailsComponent implements OnInit, OnDestroy {
   private languageService: LanguageService = inject(LanguageService);
   private formatUtils: FormatUtilsService = inject(FormatUtilsService);
   private sanitizer: DomSanitizer = inject(DomSanitizer);
-  private fb: FormBuilder = inject(FormBuilder);
 
   // ONLY UI state and presentation logic
   movie$ = new BehaviorSubject<Movie | null>(null);
-  ratings$ = new BehaviorSubject<Rating[]>([]);
   currentUser$ = this.authService.currentUser$;
   isInWatchlist$: Observable<boolean> = of(false);
   trailerUrl: SafeResourceUrl | null = null;
   currentLang = 'en';
   private langSubscription!: Subscription;
 
-  // Rating form - NO business logic
-  ratingForm: FormGroup = this.fb.group({
-    rating: [null, [Validators.required, Validators.min(1), Validators.max(10)]],
-    comment: ['']  // Comment field for ratings
-  });
-
   ngOnInit(): void {
     // NO business logic - just coordinate service calls
     const movieId = this.route.snapshot.paramMap.get('id');
     if (movieId) {
       this.loadMovieData(movieId);
-      this.loadRatings(movieId);
     }
 
     this.currentLang = this.languageService.getCurrentLanguage();
@@ -66,21 +57,7 @@ export class MovieDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
-  // NO business logic - delegate to service
-  onSubmitRating(): void {
-    if (this.ratingForm.valid && this.movie$.value) {
-      const movieId = this.movie$.value.id;
-      const { rating, comment } = this.ratingForm.value;
-      
-      this.movieService.rateMovie(movieId, rating, comment).subscribe({
-        next: () => {
-          this.ratingForm.reset();
-          this.loadRatings(movieId); // Refresh ratings
-        },
-        error: (error) => this.handleError(error)
-      });
-    }
-  }
+
 
   // NO business logic - delegate to service
   toggleWatchlist(): void {
@@ -143,12 +120,7 @@ export class MovieDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
-  private loadRatings(movieId: string): void {
-    this.movieService.getMovieRatings(movieId).subscribe({
-      next: (response) => this.ratings$.next(response.ratings),
-      error: (error) => this.handleError(error)
-    });
-  }
+
 
   private getSafeTrailerUrl(url: string): SafeResourceUrl {
     let embedUrl = url;

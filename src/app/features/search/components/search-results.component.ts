@@ -90,14 +90,14 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
     if (searchType === 'titles') searchType = 'title';
     if (searchType === 'celebs') searchType = 'people';
 
-    this.movieService.search(this.searchQuery, searchType as any).subscribe({
-      next: (response) => {
+    this.movieService.searchMovies(this.searchQuery, searchType as any).subscribe({
+      next: (response: any) => {
         this.movieResults = response.results.titles || [];
         this.personResults = response.results.people || [];
         this.hasResults = this.movieResults.length > 0 || this.personResults.length > 0;
         this.loading = false;
       },
-      error: (error) => {
+      error: (error: any) => {
         this.error = 'Failed to perform search';
         this.loading = false;
         console.error('Search error:', error);

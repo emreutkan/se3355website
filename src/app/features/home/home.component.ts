@@ -57,7 +57,7 @@ export class HomeComponent implements OnInit {
     this.error = null;
 
     // Load popular movies first (these will be featured)
-    this.movieService.getMovies(1).subscribe({
+    this.movieService.getMovies({ page: 1 }).subscribe({
       next: (popularResponse) => {
         this.allMovies = popularResponse.movies || [];
         this.featuredMovies = this.allMovies.slice(0, 10); // Fix: use allMovies instead of popularMovies

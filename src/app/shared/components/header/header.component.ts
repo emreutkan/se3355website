@@ -141,20 +141,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.movieService.searchTypeahead(query).subscribe({
-      next: (response) => {
+    this.movieService.getTypeaheadSuggestions(query).subscribe({
+      next: (response: any) => {
         // The typeahead response needs to be mapped to the existing titles/celebs structure
-        const titles = response.suggestions.filter(s => s.type === 'movie');
-        const celebs = response.suggestions.filter(s => s.type === 'actor');
+        const titles = response.filter((s: any) => s.type === 'movie');
+        const celebs = response.filter((s: any) => s.type === 'actor');
 
         this.typeaheadResults = {
-          titles: titles.map(t => ({ id: t.id, title: t.title, year: t.year, media_type: 'movie' })),
-          celebs: celebs.map(c => ({ id: c.id, full_name: c.title, photo_url: c.image_url, media_type: 'person' }))
+          titles: titles.map((t: any) => ({ id: t.id, title: t.title, year: t.year, media_type: 'movie' })),
+          celebs: celebs.map((c: any) => ({ id: c.id, full_name: c.title, photo_url: c.image_url, media_type: 'person' }))
         };
 
         this.showTypeahead = this.typeaheadResults.titles.length > 0 || this.typeaheadResults.celebs.length > 0;
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Typeahead search error:', error);
         this.typeaheadResults = { titles: [], celebs: [] };
         this.showTypeahead = false;

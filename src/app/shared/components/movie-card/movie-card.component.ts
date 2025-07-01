@@ -8,6 +8,7 @@ import { Observable, of, Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { LanguageService } from '../../services/language.service';
+import { FormatUtilsService } from '../../services/format-utils.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -22,6 +23,7 @@ export class MovieCardComponent implements OnInit, OnDestroy {
   private watchlistService = inject(WatchlistService);
   private authService = inject(AuthService);
   private languageService = inject(LanguageService);
+  private formatUtils = inject(FormatUtilsService);
   private router = inject(Router);
 
   @Input() movie!: Movie;
@@ -66,7 +68,7 @@ export class MovieCardComponent implements OnInit, OnDestroy {
   }
 
   getPosterUrl(): string {
-    return this.movieService.getPosterUrl(this.movie.image_url);
+    return this.formatUtils.getPosterUrl(this.movie.image_url || '');
   }
 
   getRating(): number {
@@ -74,7 +76,7 @@ export class MovieCardComponent implements OnInit, OnDestroy {
   }
 
   getFormattedRating(): string {
-    return this.movieService.formatRating(this.getRating());
+    return this.formatUtils.formatRating(this.getRating());
   }
 
   getYear(): string {
@@ -99,7 +101,7 @@ export class MovieCardComponent implements OnInit, OnDestroy {
   }
 
   formatRuntime(minutes: number): string {
-    return this.movieService.formatRuntime(minutes);
+    return this.formatUtils.formatRuntime(minutes);
   }
 
   formatVotes(count: number): string {

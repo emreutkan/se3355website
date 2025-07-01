@@ -57,53 +57,7 @@
     </div>
   </div>
 
-  <!-- Rating Form - NO logic in template -->
-  <div class="rating-form-section" *ngIf="currentUser$ | async">
-    <h3>Rate & Review This Movie</h3>
-    <form [formGroup]="ratingForm" (ngSubmit)="onSubmitRating()">
-      <div class="rating-input">
-        <label for="rating">Your Rating (1-10):</label>
-        <select id="rating" formControlName="rating" required>
-          <option value="">Select Rating</option>
-          <option *ngFor="let i of [1,2,3,4,5,6,7,8,9,10]" [value]="i">{{ i }}</option>
-        </select>
-      </div>
-      
-      <div class="comment-input">
-        <label for="comment">Comment (optional):</label>
-        <textarea 
-          id="comment"
-          formControlName="comment" 
-          placeholder="Share your thoughts about this movie..."
-          rows="4">
-        </textarea>
-      </div>
-      
-      <button type="submit" [disabled]="ratingForm.invalid" class="submit-rating-btn">
-        Submit Rating & Comment
-      </button>
-    </form>
-  </div>
 
-  <!-- Display Ratings & Comments - NO logic in template -->
-  <div class="ratings-section">
-    <h3>User Ratings & Comments</h3>
-    <div class="rating-item-display" *ngFor="let rating of ratings$ | async">
-      <div class="rating-header">
-        <span class="user-name">{{ rating.user?.full_name || 'Anonymous' }}</span>
-        <span class="rating-value">{{ formatRating(rating.rating) }}</span>
-        <span class="rating-date">{{ rating.created_at | date }}</span>
-        <span class="user-country" *ngIf="rating.voter_country">({{ rating.voter_country }})</span>
-      </div>
-      <div class="comment" *ngIf="rating.comment">
-        {{ rating.comment }}
-      </div>
-    </div>
-    
-    <div class="no-ratings" *ngIf="(ratings$ | async)?.length === 0">
-      <p>No ratings yet. Be the first to rate this movie!</p>
-    </div>
-  </div>
 
   <!-- Bottom Details -->
   <div class="bottom-details">

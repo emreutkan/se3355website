@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../shared/services/auth.service';
+import { FormatUtilsService } from '../../../shared/services/format-utils.service';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Country, LocationService } from '../../../shared/services/location.service';
@@ -16,6 +17,7 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 })
 export class RegisterComponent implements OnInit {
   private authService = inject(AuthService);
+  private formatUtils = inject(FormatUtilsService);
   private locationService = inject(LocationService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
@@ -69,7 +71,7 @@ export class RegisterComponent implements OnInit {
   validatePassword(): void {
     const passwordControl = this.password;
     if (passwordControl) {
-      const validationResult = this.authService.validatePassword(passwordControl.value);
+      const validationResult = this.formatUtils.validatePassword(passwordControl.value);
       this.passwordErrors = validationResult.errors;
     }
   }
@@ -78,7 +80,7 @@ export class RegisterComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
-      const validation = this.authService.validatePhoto(file);
+      const validation = this.formatUtils.validatePhoto(file);
       if (validation.valid) {
         this.selectedFile = file;
         this.registerForm.patchValue({ photo: file });
