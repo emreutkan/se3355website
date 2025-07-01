@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { apiUrl } from '../types/api';
-import {GetUserProfileResponse, GetUserRatingsResponse, GetUserWatchlistResponse} from '../types/api.responses';
+import {GetUserProfileResponse, GetUserRatingsResponse} from '../types/api.responses';
 
 
 @Injectable({
@@ -37,20 +37,10 @@ export class UserService {
     );
   }
 
-
-
   // ===== RATINGS =====
 
   getUserRatings(page = 1, size = 20): Observable<GetUserRatingsResponse> {
     return this.http.get<GetUserRatingsResponse>(`${apiUrl}/users/me/ratings?page=${page}&size=${size}`, {
-      headers: this.getAuthHeaders()
-    }).pipe(catchError(this.handleError));
-  }
-
-
-
-  toggleWatchlist(movieId: string): Observable<{ msg: string }> {
-    return this.http.post<{ msg: string }>(`${apiUrl}/users/me/watchlist/${movieId}`, {}, {
       headers: this.getAuthHeaders()
     }).pipe(catchError(this.handleError));
   }
@@ -60,8 +50,6 @@ export class UserService {
   isAuthenticated(): boolean {
     return !!localStorage.getItem('imdb-token');
   }
-
-
 
   formatRating(rating: number): string {
     return `${rating}/10`;

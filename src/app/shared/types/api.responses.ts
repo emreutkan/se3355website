@@ -38,6 +38,7 @@ export interface GetMovieDetailsResponse {
     rating_distribution: Record<number, number>; // e.g. { 1: 2, 2: 3, ..., 10: 15 }
     popularity?: {
       score: number;
+      rank: number;
       snapshot_date: string;
     };
   };
@@ -57,13 +58,35 @@ export interface GetPopularMoviesResponse {
 /* -------------------- RATINGS -------------------- */
 
 export interface GetMovieRatingsResponse {
-  ratings: (Rating & {
-    user: Pick<User, "id" | "full_name" | "country">
-  })[];
-  pagination: PaginationMeta;
+  ratings: {
+    id: string;
+    user: {
+      full_name: string;
+      country: string;
+    };
+    rating: number;
+    comment?: string;
+    voter_country: string;
+    created_at: string;
+  }[];
   distribution: {
-    [rating: number]: number;
-    country_breakdown: Record<string, number>;
+    country: string;
+    votes: number;
+    avg_rating: number;
+  }[];
+  pagination: PaginationMeta;
+}
+
+export interface SubmitRatingResponse {
+  msg: string;
+  rating: {
+    id: string;
+    user_id: string;
+    movie_id: string;
+    rating: number;
+    comment?: string;
+    voter_country: string;
+    created_at: string;
   };
 }
 
@@ -83,10 +106,17 @@ export interface GetUserProfileResponse {
 export interface GetUserRatingsResponse {
   ratings: {
     id: string;
-    created_at: string;
+    movie_id: string;
     rating: number;
-    review?: string;
-    movie: Pick<Movie, "id" | "title" | "year" | "image_url">
+    comment?: string;
+    voter_country: string;
+    created_at: string;
+    movie: {
+      id: string;
+      title: string;
+      year: number;
+      image_url: string;
+    };
   }[];
   pagination: PaginationMeta;
 }

@@ -9,11 +9,12 @@ import {
   GetMovieDetailsResponse,
   GetMovieRatingsResponse,
   GetMoviesResponse,
-  GetPopularMoviesResponse, GetUserRatingsResponse, GetUserWatchlistResponse, SearchResponse, TypeaheadResponse
+  GetPopularMoviesResponse, GetUserRatingsResponse, GetUserWatchlistResponse, SearchResponse, TypeaheadResponse, SubmitRatingResponse
 } from '../types/api.responses';
 import {SortOption} from '../models/movie.model';
 import { Movie } from '../models/movie.model';
 import {LanguageService} from './language.service';
+import { SubmitRatingRequest } from '../types/api.requests';
 
 
 @Injectable({
@@ -79,7 +80,11 @@ export class MovieService {
       .pipe(catchError(this.handleError));
   }
 
-
+  submitRating(movieId: string, ratingData: SubmitRatingRequest): Observable<SubmitRatingResponse> {
+    return this.http.post<SubmitRatingResponse>(`${apiUrl}/movies/${movieId}/ratings`, ratingData, {
+      headers: this.getAuthHeaders()
+    }).pipe(catchError(this.handleError));
+  }
 
   // ================== ACTORS ==================
 

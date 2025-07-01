@@ -6,6 +6,8 @@ import { LanguageService } from '../../services/language.service';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { Observable, of, Subscription } from 'rxjs';
 import { WatchlistService } from '../../services/watchlist.service';
+import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-movie-slider',
@@ -17,6 +19,8 @@ import { WatchlistService } from '../../services/watchlist.service';
 export class MovieSliderComponent implements OnInit, OnDestroy {
   private languageService = inject(LanguageService);
   private watchlistService = inject(WatchlistService);
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
   @Input() movies: Movie[] = [];
   @Input() autoSlide = true;
@@ -158,12 +162,20 @@ export class MovieSliderComponent implements OnInit, OnDestroy {
   onWatchTrailer(movie: Movie) {
     if (movie?.trailer_url) {
       window.open(movie.trailer_url, '_blank');
+    } else {
+      console.log('No trailer available for:', movie?.title);
     }
     this.stopAutoSlide();
   }
 
   onAddToWatchlist(movie: Movie) {
     if (movie) {
+      // Check if user is authenticated before allowing watchlist action
+      if (!this.authService.isLoggedIn()) {
+        this.router.navigate(['/auth/login']);
+        return;
+      }
+      
       this.watchlistService.toggleWatchlist(movie.id).subscribe();
     }
   }

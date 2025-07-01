@@ -21,7 +21,7 @@
           </div>
         </div>
       </a>
-      <div class="rating-item">
+      <div class="rating-item" (click)="onRateClick()">
         <span class="rating-title">YOUR RATING</span>
         <div class="rating-value rate-blue">
           <svg class="rating-icon star-outline" width="20" height="20" viewBox="0 0 24 24">
@@ -37,7 +37,8 @@
             <circle cx="12" cy="12" r="10" fill="#4caf50" stroke="#2e7d32" stroke-width="2"/>
             <path fill="white" d="M12 6v6l4 2"/>
           </svg>
-          <span>{{ movie.popularity.rank }}</span>
+          <span>{{ getPopularityRanking() }}</span>
+          <span class="popularity-trend">{{ getPopularityTrend() }}</span>
         </div>
       </div>
     </div>
@@ -47,7 +48,7 @@
   <div class="content-grid">
     <div class="poster-container">
       <img [src]="movie.image_url" [alt]="movie.title" class="movie-poster">
-      <div class="watchlist-plus-icon">
+      <div class="watchlist-plus-icon" (click)="toggleWatchlist()">
         <i class="fas fa-plus"></i>
       </div>
     </div>

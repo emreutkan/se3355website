@@ -5,12 +5,60 @@
       <img [src]="movie.image_url" [alt]="movie.title" class="header-poster">
       <div>
         <h2>{{ movie.title }}</h2>
-        <h1>Ratings</h1>
+        <h1>Ratings & Reviews</h1>
       </div>
     </div>
   </div>
 
   <div class="ratings-content">
+    <!-- Add Rating/Comment Section -->
+    <section class="add-rating-section" *ngIf="isLoggedIn$ | async">
+      <h3>Rate & Review this Movie</h3>
+      <form [formGroup]="ratingForm" (ngSubmit)="onSubmitRating()" class="rating-form">
+        <div class="rating-input-section">
+          <label for="rating">Your Rating (1-10):</label>
+          <div class="rating-stars">
+            <span 
+              *ngFor="let star of [1,2,3,4,5,6,7,8,9,10]; let i = index" 
+              class="star" 
+              [class.filled]="i < selectedRating"
+              (click)="selectRating(i + 1)"
+              (mouseenter)="hoverRating(i + 1)"
+              (mouseleave)="hoverRating(0)">
+              ★
+            </span>
+          </div>
+          <span class="rating-text">{{ selectedRating || hoverRatingValue || 'Select a rating' }}</span>
+        </div>
+        
+        <div class="comment-input-section">
+          <label for="comment">Your Review (Optional):</label>
+          <textarea 
+            id="comment" 
+            formControlName="comment" 
+            placeholder="Share your thoughts about this movie..."
+            rows="4"
+            maxlength="500">
+          </textarea>
+          <small class="char-count">{{ getCharacterCount() }}/500</small>
+        </div>
+        
+        <div class="form-actions">
+          <button type="submit" [disabled]="!selectedRating || isSubmittingRating" class="submit-rating-btn">
+            <span *ngIf="!isSubmittingRating">Submit Rating</span>
+            <span *ngIf="isSubmittingRating">Submitting...</span>
+          </button>
+          <button type="button" (click)="resetForm()" class="reset-btn">Reset</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Login prompt for non-authenticated users -->
+    <section class="login-prompt" *ngIf="!(isLoggedIn$ | async)">
+      <h3>Rate & Review this Movie</h3>
+      <p>Please <a routerLink="/auth/login">sign in</a> to rate and review this movie.</p>
+    </section>
+
     <section class="imdb-rating-section">
       <h3>IMDb rating</h3>
       <p class="section-description">The IMDb rating is weighted to help keep it reliable. <a href="#">Learn more</a></p>
@@ -35,30 +83,77 @@
       </div>
     </section>
 
-    <section class="user-ratings-section">
-      <h3>User ratings</h3>
-      <p class="section-description">FILTER BY COUNTRY</p>
-      <p class="section-description-small">Countries with the most ratings</p>
-      <div class="country-filters">
-        <button
-          *ngFor="let country of countries"
-          class="filter-btn"
-          [class.active]="country === selectedCountry"
-          (click)="selectCountry(country)">
-          {{ country }}
-        </button>
+    <!-- Rating Distribution by Country -->
+    <section class="rating-distribution-section" *ngIf="movieRatings">
+      <h3>Rating Distribution</h3>
+      <div class="country-selector">
+        <label for="country-select">View by Country:</label>
+        <select id="country-select" [(ngModel)]="selectedCountry" (change)="onCountryChange()">
+          <option value="all">All Countries</option>
+          <option *ngFor="let country of availableCountries" [value]="country">{{ country }}</option>
+        </select>
       </div>
-      <div class="ratings-distribution">
-        <div class="dist-bar-item" *ngFor="let dist of ratingDistribution">
-          <span class="dist-rating">{{ dist.rating }}</span>
-          <div class="dist-bar-container">
-            <div class="dist-bar" [style.width.%]="dist.percentage"></div>
+      
+      <div class="distribution-chart">
+        <div class="rating-bars">
+          <div *ngFor="let item of ratingDistribution" class="rating-bar-item">
+            <span class="rating-label">{{ item.rating }}</span>
+            <div class="rating-bar">
+              <div class="rating-fill" [style.width.%]="item.percentage"></div>
+            </div>
+            <span class="rating-count">{{ item.votes }}</span>
           </div>
-          <span class="dist-info">{{ dist.percentage }}% ({{ dist.votes }})</span>
         </div>
-        <div class="unweighted-mean">
-          {{ unweightedMean.toFixed(1) }} Unweighted mean
+      </div>
+    </section>
+
+    <!-- User Comments/Reviews -->
+    <section class="user-reviews-section" *ngIf="movieRatings">
+      <h3>User Reviews</h3>
+      <div class="reviews-list" *ngIf="movieRatings.ratings.length > 0">
+        <div *ngFor="let rating of movieRatings.ratings" class="review-item">
+          <div class="review-header">
+            <div class="user-info">
+              <strong>{{ rating.user.full_name }}</strong>
+              <span class="user-country">from {{ rating.user.country }}</span>
+            </div>
+            <div class="rating-score">
+              <span class="user-rating">{{ rating.rating }}/10</span>
+              <div class="rating-stars">
+                <span *ngFor="let star of getStarArray(rating.rating)" [class]="'star ' + star">★</span>
+              </div>
+            </div>
+          </div>
+          <div class="review-content" *ngIf="rating.comment">
+            <p>{{ rating.comment }}</p>
+          </div>
+          <div class="review-meta">
+            <span class="review-date">{{ formatDate(rating.created_at) }}</span>
+          </div>
         </div>
+      </div>
+      
+      <div class="no-reviews" *ngIf="movieRatings.ratings.length === 0">
+        <p>No reviews yet. Be the first to review this movie!</p>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination" *ngIf="movieRatings.pagination.pages > 1">
+        <button 
+          *ngIf="movieRatings.pagination.has_prev" 
+          (click)="loadRatings(movieRatings.pagination.page - 1)"
+          class="pagination-btn">
+          Previous
+        </button>
+        <span class="page-info">
+          Page {{ movieRatings.pagination.page }} of {{ movieRatings.pagination.pages }}
+        </span>
+        <button 
+          *ngIf="movieRatings.pagination.has_next" 
+          (click)="loadRatings(movieRatings.pagination.page + 1)"
+          class="pagination-btn">
+          Next
+        </button>
       </div>
     </section>
   </div>

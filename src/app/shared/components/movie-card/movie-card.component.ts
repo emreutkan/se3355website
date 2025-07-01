@@ -8,6 +8,7 @@ import { Observable, of, Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { LanguageService } from '../../services/language.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-movie-card',
@@ -21,6 +22,7 @@ export class MovieCardComponent implements OnInit, OnDestroy {
   private watchlistService = inject(WatchlistService);
   private authService = inject(AuthService);
   private languageService = inject(LanguageService);
+  private router = inject(Router);
 
   @Input() movie!: Movie;
   @Input() showRating = true;
@@ -113,11 +115,19 @@ export class MovieCardComponent implements OnInit, OnDestroy {
   toggleWatchlist(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
+    
+    // Check if user is authenticated before allowing watchlist action
+    if (!this.authService.isLoggedIn()) {
+      this.router.navigate(['/auth/login']);
+      return;
+    }
+    
     this.watchlistService.toggleWatchlist(this.movie.id).subscribe();
   }
 
   onTrailerClick(event: Event): void {
-    event.stopPropagation(); // Prevent navigation to movie details
+    event.preventDefault();
+    event.stopPropagation();
     if (this.movie.trailer_url) {
       window.open(this.movie.trailer_url, '_blank');
     } else {

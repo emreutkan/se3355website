@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, OnDestroy } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { MovieService } from '../../../shared/services/movie.service';
 import { Actor, Movie } from '../../../shared/models/movie.model';
 import { CommonModule, DecimalPipe } from '@angular/common';
@@ -18,6 +18,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 })
 export class MovieDetailsComponent implements OnInit, OnDestroy {
   private route: ActivatedRoute = inject(ActivatedRoute);
+  private router: Router = inject(Router);
   private movieService: MovieService = inject(MovieService);
   private watchlistService: WatchlistService = inject(WatchlistService);
   private authService: AuthService = inject(AuthService);
@@ -56,39 +57,71 @@ export class MovieDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
-  private getSafeTrailerUrl(url: string): SafeResourceUrl {
-    const videoId = this.extractVideoId(url);
-    const embedUrl = `https://www.youtube.com/embed/${videoId}`;
-    return this.sanitizer.bypassSecurityTrustResourceUrl(embedUrl);
-  }
-
-  private extractVideoId(url: string): string {
-    const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
-    return (match && match[2].length === 11) ? match[2] : '';
-  }
-
-  formatRuntime(runtimeMin: number | undefined): string {
-    if (!runtimeMin || runtimeMin <= 0) return '';
-    const hours = Math.floor(runtimeMin / 60);
-    const minutes = runtimeMin % 60;
-    return `${hours}h ${minutes}m`;
+  formatRuntime(minutes: number): string {
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return `${hours}h ${remainingMinutes}m`;
   }
 
   toggleWatchlist(): void {
     if (this.movie) {
+      // Check if user is authenticated before allowing watchlist action
+      if (!this.authService.isLoggedIn()) {
+        this.router.navigate(['/auth/login']);
+        return;
+      }
+      
       this.watchlistService.toggleWatchlist(this.movie.id).subscribe();
     }
   }
 
+  onRateClick(): void {
+    if (!this.authService.isLoggedIn()) {
+      this.router.navigate(['/auth/login']);
+      return;
+    }
+    
+    if (this.movie) {
+      this.router.navigate(['/ratings', this.movie.id]);
+    }
+  }
+
+  private getSafeTrailerUrl(url: string): SafeResourceUrl {
+    let embedUrl = url;
+
+    if (url.includes('youtube.com/watch?v=')) {
+      const videoId = url.split('v=')[1]?.split('&')[0];
+      embedUrl = `https://www.youtube.com/embed/${videoId}`;
+    } else if (url.includes('youtu.be/')) {
+      const videoId = url.split('youtu.be/')[1]?.split('?')[0];
+      embedUrl = `https://www.youtube.com/embed/${videoId}`;
+    }
+
+    return this.sanitizer.bypassSecurityTrustResourceUrl(embedUrl);
+  }
+
   private addDummyDataForUi(movie: Movie): Movie {
-    // API data doesn't contain director/writers, so adding dummy data to match UI
-    const movieWithDummies = { ...movie };
-    if (!movieWithDummies.director) {
-      movieWithDummies.director = ['Joseph Kosinski'];
+    return {
+      ...movie,
+      popularity: movie.popularity || {
+        movie_id: movie.id,
+        rank: Math.floor(Math.random() * 1000) + 1, // Random rank for demo
+        score: Math.random() * 100,
+        snapshot_date: new Date().toISOString()
+      }
+    };
+  }
+
+  getPopularityRanking(): string {
+    if (this.movie?.popularity?.rank) {
+      return `#${this.movie.popularity.rank}`;
     }
-    if (!movieWithDummies.writers) {
-      movieWithDummies.writers = ['Ehren Kruger', 'Joseph Kosinski'];
-    }
-    return movieWithDummies;
+    return '';
+  }
+
+  getPopularityTrend(): string {
+    // This would normally come from comparing current vs previous rankings
+    const trends = ['↗️ Up', '↘️ Down', '→ Same'];
+    return trends[Math.floor(Math.random() * trends.length)];
   }
 } 

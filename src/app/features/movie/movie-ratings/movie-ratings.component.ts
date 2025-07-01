@@ -1,8 +1,13 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { MovieService } from '../../../shared/services/movie.service';
-import { Movie, RatingDistributionItem } from '../../../shared/models/movie.model';
+import { AuthService } from '../../../shared/services/auth.service';
+import { Movie } from '../../../shared/models/movie.model';
+import { GetMovieRatingsResponse } from '../../../shared/types/api.responses';
+import { Observable } from 'rxjs';
 
 interface RatingDistribution {
   rating: number;
@@ -13,105 +18,147 @@ interface RatingDistribution {
 @Component({
   selector: 'app-movie-ratings',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, FormsModule],
   templateUrl: './movie-ratings.component.html',
   styleUrls: ['./movie-ratings.component.css']
 })
 export class MovieRatingsComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private movieService = inject(MovieService);
+  private authService = inject(AuthService);
+  private fb = inject(FormBuilder);
 
   movie: Movie | null = null;
-  countries: string[] = [];
-  selectedCountry = '';
+  movieRatings: GetMovieRatingsResponse | null = null;
+  isLoggedIn$: Observable<boolean> = this.authService.isLoggedIn$;
+  
+  // Rating form
+  ratingForm: FormGroup;
+  selectedRating = 0;
+  hoverRatingValue = 0;
+  isSubmittingRating = false;
+  
+  // Distribution
+  selectedCountry = 'all';
+  availableCountries: string[] = [];
   ratingDistribution: RatingDistribution[] = [];
-  unweightedMean = 0;
+
+  constructor() {
+    this.ratingForm = this.fb.group({
+      comment: ['']
+    });
+  }
 
   ngOnInit(): void {
     const movieId = this.route.snapshot.paramMap.get('id');
     if (movieId) {
-      this.movieService.getMovieDetails(movieId).subscribe(movie => {
-        this.movie = movie;
-        this.countries = ['All', ...(movie.rating_distribution?.map(d => d.country) || [])];
-        if (this.countries.length > 0) {
-          this.selectCountry(this.countries[0]);
-        }
+      this.loadMovieDetails(movieId);
+      this.loadRatings();
+    }
+  }
+
+  private loadMovieDetails(movieId: string): void {
+    this.movieService.getMovieDetails(movieId).subscribe(movie => {
+      this.movie = movie;
+    });
+  }
+
+  loadRatings(page = 1): void {
+    const movieId = this.route.snapshot.paramMap.get('id');
+    if (movieId) {
+      this.movieService.getMovieRatings(movieId, page).subscribe(response => {
+        this.movieRatings = response;
+        this.setupCountries();
+        this.calculateRatingDistribution();
       });
     }
   }
 
-  selectCountry(country: string): void {
-    this.selectedCountry = country;
-    
-    if (!this.movie?.rating_distribution) {
-      this.ratingDistribution = [];
-      this.unweightedMean = 0;
-      return;
+  private setupCountries(): void {
+    if (this.movieRatings?.distribution) {
+      this.availableCountries = this.movieRatings.distribution.map(d => d.country);
     }
+  }
 
-    if (country === 'All') {
-      const totalVotes = this.movie.rating_distribution.reduce((sum, d) => sum + d.votes, 0);
-      const weightedSum = this.movie.rating_distribution.reduce((sum, d) => sum + (d.avg_rating * d.votes), 0);
-      const overallAverage = totalVotes > 0 ? weightedSum / totalVotes : 0;
-      
-      this.unweightedMean = Math.round(overallAverage * 10) / 10;
-      this.ratingDistribution = this.generateRatingDistribution(overallAverage, totalVotes);
+  selectRating(rating: number): void {
+    this.selectedRating = rating;
+  }
+
+  hoverRating(rating: number): void {
+    this.hoverRatingValue = rating;
+  }
+
+  onSubmitRating(): void {
+    if (!this.selectedRating || this.isSubmittingRating) return;
+    
+    const movieId = this.route.snapshot.paramMap.get('id');
+    if (!movieId) return;
+
+    this.isSubmittingRating = true;
+    
+    const ratingData = {
+      rating: this.selectedRating,
+      comment: this.ratingForm.get('comment')?.value || undefined
+    };
+
+    this.movieService.submitRating(movieId, ratingData).subscribe({
+      next: (response) => {
+        console.log('Rating submitted successfully:', response);
+        this.resetForm();
+        this.loadRatings(); // Reload ratings to show the new one
+        this.isSubmittingRating = false;
+      },
+      error: (error) => {
+        console.error('Error submitting rating:', error);
+        this.isSubmittingRating = false;
+      }
+    });
+  }
+
+  resetForm(): void {
+    this.selectedRating = 0;
+    this.hoverRatingValue = 0;
+    this.ratingForm.reset();
+  }
+
+  getCharacterCount(): number {
+    return this.ratingForm.get('comment')?.value?.length || 0;
+  }
+
+  onCountryChange(): void {
+    this.calculateRatingDistribution();
+  }
+
+  private calculateRatingDistribution(): void {
+    if (!this.movieRatings) return;
+
+    if (this.selectedCountry === 'all') {
+      // Calculate overall distribution
+      const totalVotes = this.movieRatings.distribution.reduce((sum, d) => sum + d.votes, 0);
+      this.generateDistributionBars(totalVotes);
     } else {
-      const countryData = this.movie.rating_distribution.find(d => d.country === country);
-      
-      if (!countryData) {
-        this.ratingDistribution = [];
-        this.unweightedMean = 0;
-        return;
+      // Calculate for specific country
+      const countryData = this.movieRatings.distribution.find(d => d.country === this.selectedCountry);
+      if (countryData) {
+        this.generateDistributionBars(countryData.votes);
       }
-
-      this.unweightedMean = countryData.avg_rating;
-
-      this.ratingDistribution = this.generateRatingDistribution(countryData.avg_rating, countryData.votes);
     }
   }
 
-  private generateRatingDistribution(avgRating: number, totalVotes: number): RatingDistribution[] {
-    const distribution: RatingDistribution[] = [];
+  private generateDistributionBars(totalVotes: number): void {
+    // Generate mock distribution data (in real app, this would come from API)
+    this.ratingDistribution = [];
     
-    const ratings = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
-    
-    const voteDistribution: { [key: number]: number } = {};
-    let totalCalculatedVotes = 0;
-    
-    ratings.forEach(rating => {
-      const distance = Math.abs(rating - avgRating);
+    for (let rating = 10; rating >= 1; rating--) {
+      const percentage = Math.random() * 20; // Mock percentages
+      const votes = Math.floor((percentage / 100) * totalVotes);
       
-      let voteProbability = Math.exp(-distance * 0.8);
-      
-      if (distance <= 1) {
-        voteProbability *= (0.8 + Math.random() * 0.4);
-      } else if (distance <= 2) {
-        voteProbability *= (0.3 + Math.random() * 0.4);
-      } else {
-        voteProbability *= (0.1 + Math.random() * 0.2);
-      }
-      
-      const votes = Math.round(voteProbability * totalVotes * 0.15);
-      
-      voteDistribution[rating] = votes;
-      totalCalculatedVotes += votes;
-    });
-    
-    const scaleFactor = totalVotes / Math.max(totalCalculatedVotes, 1);
-    
-    ratings.forEach(rating => {
-      const adjustedVotes = Math.round(voteDistribution[rating] * scaleFactor);
-      const percentage = totalVotes > 0 ? (adjustedVotes / totalVotes) * 100 : 0;
-      
-      distribution.push({
+      this.ratingDistribution.push({
         rating,
-        percentage: Math.round(percentage * 10) / 10,
-        votes: this.formatVotes(adjustedVotes)
+        percentage,
+        votes: this.formatVotes(votes)
       });
-    });
-    
-    return distribution;
+    }
   }
 
   private formatVotes(votes: number): string {
@@ -122,5 +169,27 @@ export class MovieRatingsComponent implements OnInit {
     } else {
       return votes.toString();
     }
+  }
+
+  getStarArray(rating: number): string[] {
+    const fullStars = Math.floor(rating / 2);
+    const halfStar = rating % 2 >= 1;
+    const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+    
+    const stars: string[] = [];
+    for (let i = 0; i < fullStars; i++) stars.push('filled');
+    if (halfStar) stars.push('half');
+    for (let i = 0; i < emptyStars; i++) stars.push('empty');
+    
+    return stars;
+  }
+
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
   }
 }
