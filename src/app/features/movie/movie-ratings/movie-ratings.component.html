@@ -1,7 +1,7 @@
 <div class="ratings-page-container" *ngIf="movie$ | async as movie">
   <!-- Header Section -->
   <div class="header">
-    <a routerLink="../" class="back-link">
+    <a [routerLink]="['/movie', movie.id]" class="back-link">
       <i class="fas fa-arrow-left"></i> Back to {{ movie.title }}
     </a>
     <div class="header-title">
@@ -83,9 +83,12 @@
       <div class="rate-this-header">
         <div class="large-star">★</div>
         <div class="rate-text">
-          <span class="rating-number">{{ selectedRating || '?' }}</span>
-          <span class="rate-label">RATE THIS</span>
+          <span class="rating-number">{{ selectedRating || (userRating$ | async)?.rating || '?' }}</span>
+          <span class="rate-label">{{ (userRating$ | async) ? 'YOUR RATING' : 'RATE THIS' }}</span>
           <h4>{{ movie.title }}</h4>
+          <span class="user-rating-info" *ngIf="userRating$ | async as userRating">
+            Rated on {{ formatDate(userRating.created_at) }}
+          </span>
         </div>
       </div>
       
@@ -93,7 +96,7 @@
         <span 
           *ngFor="let i of [1,2,3,4,5,6,7,8,9,10]" 
           class="star-interactive"
-          [class.filled]="i <= selectedRating"
+          [class.filled]="i <= (selectedRating || (userRating$ | async)?.rating || 0)"
           [class.hover]="i <= hoverRating && hoverRating > 0"
           (click)="selectRating(i)"
           (mouseenter)="hoverRatingValue(i)"
@@ -107,7 +110,7 @@
         [disabled]="selectedRating === 0 || isSubmittingRating"
         (click)="onSubmitRating()"
         *ngIf="!ratingForm.get('comment')?.value">
-        {{ isSubmittingRating ? 'Rating...' : 'Rate' }}
+        {{ isSubmittingRating ? 'Rating...' : ((userRating$ | async) ? 'Update Rating' : 'Rate') }}
       </button>
     </section>
 
@@ -115,7 +118,7 @@
     <section class="add-comment-section" *ngIf="(isLoggedIn$ | async) && !showReviewForm">
       <button class="add-comment-btn" (click)="toggleReviewForm()">
         <i class="fas fa-plus"></i>
-        Add Comment
+        {{ (userRating$ | async)?.comment ? 'Edit Review' : 'Add Comment' }}
       </button>
     </section>
 
@@ -128,7 +131,7 @@
           <div class="review-info">
             <h4>{{ movie.title }}</h4>
             <span class="movie-year">R • {{ movie.year }} • {{ (movie.runtime_min || 0) }}m</span>
-            <h3>Add User Review</h3>
+            <h3>{{ (userRating$ | async) ? 'Edit Your Review' : 'Add User Review' }}</h3>
           </div>
           <button class="close-btn" (click)="closeReviewForm()">
             <i class="fas fa-times"></i>
@@ -158,27 +161,23 @@
             </div>
 
             <div class="form-group">
-              <label for="review-title" class="form-label">Title of your review</label>
-              <input 
-                type="text" 
-                id="review-title" 
-                class="form-input"
-                placeholder="Title of your review"
-                maxlength="100">
-            </div>
-
-            <div class="form-group">
               <label for="review-content" class="form-label">Review</label>
+              <div class="review-warning" *ngIf="userRating$ | async as userRating">
+                <i class="fas fa-info-circle"></i>
+                <span>Submitting will replace your previous review.</span>
+              </div>
               <textarea 
                 id="review-content" 
                 formControlName="comment"
                 class="form-textarea"
-                placeholder="Write your review here..."
-                rows="6"
-                maxlength="500">
+                placeholder="Write your review here (max 200 words)..."
+                rows="6">
               </textarea>
-              <div class="character-count">
-                <span>{{ getCharacterCount() }}/500</span>
+              <div class="word-count">
+                <span [class.over-limit]="getWordCount() > 200">{{ getWordCount() }}/200 words</span>
+                <span *ngIf="ratingForm.get('comment')?.errors?.['wordLimit']" class="error-message">
+                  Review exceeds 200 word limit
+                </span>
               </div>
             </div>
 
@@ -186,8 +185,8 @@
               <button 
                 type="submit"
                 class="submit-review-btn"
-                [disabled]="selectedRating === 0 || isSubmittingRating">
-                {{ isSubmittingRating ? 'Submitting...' : 'Submit Review' }}
+                [disabled]="selectedRating === 0 || isSubmittingRating || ratingForm.invalid">
+                {{ isSubmittingRating ? 'Submitting...' : ((userRating$ | async) ? 'Update Review' : 'Submit Review') }}
               </button>
               <button 
                 type="button"
@@ -227,10 +226,6 @@
           </div>
           
           <div class="review-content">
-            <div class="review-title" *ngIf="rating.comment">
-              <h4>{{ rating.comment.substring(0, 50) }}{{ rating.comment.length > 50 ? '...' : '' }}</h4>
-            </div>
-            
             <div class="review-text" *ngIf="rating.comment">
               <p>{{ rating.comment }}</p>
             </div>

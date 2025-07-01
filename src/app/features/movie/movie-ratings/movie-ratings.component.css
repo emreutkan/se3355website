@@ -11,11 +11,24 @@
   color: inherit;
 }
 
-:host h1, :host h2, :host h3, :host h4, :host h5, :host h6 {
+/* Ensure header elements stay white on dark background */
+:host .header * {
+  color: #fff !important;
+}
+
+/* Ensure content area elements are dark on light background */
+:host .ratings-content h1, 
+:host .ratings-content h2, 
+:host .ratings-content h3, 
+:host .ratings-content h4, 
+:host .ratings-content h5, 
+:host .ratings-content h6 {
   color: #121212 !important;
 }
 
-:host p, :host span, :host div {
+:host .ratings-content p, 
+:host .ratings-content span, 
+:host .ratings-content div {
   color: inherit !important;
 }
 
@@ -65,7 +78,7 @@
   font-size: 1.8rem;
   margin: 0 0 0.5rem 0;
   font-weight: 500;
-  color: #fff;
+  color: #fff !important;
 }
 
 .movie-meta {
@@ -75,7 +88,11 @@
   margin-bottom: 1rem;
   font-size: 0.9rem;
   opacity: 0.8;
-  color: #fff;
+  color: #fff !important;
+}
+
+.movie-meta * {
+  color: #fff !important;
 }
 
 .rating-badge {
@@ -91,7 +108,7 @@
   font-size: 2.2rem;
   margin: 0;
   font-weight: 400;
-  color: #fff;
+  color: #fff !important;
 }
 
 /* Content */
@@ -383,6 +400,13 @@ section {
   color: #121212;
 }
 
+.user-rating-info {
+  font-size: 0.75rem;
+  color: #666;
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
 .rating-stars-large {
   display: flex;
   gap: 0.25rem;
@@ -615,6 +639,24 @@ section {
   flex-direction: column;
 }
 
+.review-warning {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 4px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #856404;
+}
+
+.review-warning i {
+  color: #856404;
+  font-size: 0.9rem;
+}
+
 .form-input,
 .form-textarea {
   padding: 0.75rem;
@@ -636,13 +678,31 @@ section {
 .form-textarea {
   resize: vertical;
   min-height: 120px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
 }
 
-.character-count {
+.word-count {
   text-align: right;
   font-size: 0.8rem;
   color: #666;
   margin-top: 0.25rem;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.word-count .over-limit {
+  color: #dc3545;
+  font-weight: 500;
+}
+
+.word-count .error-message {
+  color: #dc3545;
+  font-size: 0.75rem;
+  font-weight: 500;
 }
 
 .form-actions {
@@ -776,21 +836,19 @@ section {
   flex: 1;
 }
 
-.review-title h4 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: #121212;
-}
-
 .review-text {
   margin-bottom: 1rem;
 }
 
 .review-text p {
   margin: 0;
-  line-height: 1.5;
+  line-height: 1.6;
   color: #333;
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
 }
 
 .review-meta {
@@ -947,5 +1005,16 @@ section {
 
   .star-interactive {
     font-size: 1.5rem;
+  }
+
+  .word-count {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+  }
+
+  .review-text p {
+    word-break: break-word;
+    overflow-wrap: anywhere;
   }
 } 

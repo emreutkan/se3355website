@@ -81,6 +81,22 @@ export class MovieService {
     }).pipe(catchError(this.handleError));
   }
 
+  // ===== GET USER'S EXISTING RATING FOR A MOVIE =====
+  getUserRating(movieId: string): Observable<Rating | null> {
+    return this.http.get<{ rating: Rating }>(`${this.apiUrl}/movies/${movieId}/ratings/me`, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      map(response => response.rating),
+      catchError(error => {
+        // If user hasn't rated this movie, return null instead of error
+        if (error.status === 404) {
+          return of(null);
+        }
+        return this.handleError(error);
+      })
+    );
+  }
+
   // ===== NO BUSINESS LOGIC - just API calls =====
   getMovies(filters: {
     page?: number;

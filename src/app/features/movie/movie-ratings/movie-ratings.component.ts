@@ -35,13 +35,14 @@ export class MovieRatingsComponent implements OnInit {
   // State management
   movie$ = new BehaviorSubject<Movie | null>(null);
   ratingsData$ = new BehaviorSubject<RatingsResponse | null>(null);
+  userRating$ = new BehaviorSubject<Rating | null>(null);
   currentUser$ = this.authService.currentUser$;
   isLoggedIn$ = this.authService.isLoggedIn$;
   
   // Rating form state
   ratingForm: FormGroup = this.fb.group({
     rating: [null, [Validators.required, Validators.min(1), Validators.max(10)]],
-    comment: ['', [Validators.maxLength(500)]]
+    comment: ['', [this.wordLimitValidator(200)]]
   });
   
   // UI state for star rating
@@ -71,6 +72,14 @@ export class MovieRatingsComponent implements OnInit {
     if (this.movieId) {
       this.loadMovieDetails(this.movieId);
       this.loadRatings(this.movieId, 1);
+      // Load user's existing rating if logged in
+      this.isLoggedIn$.subscribe(isLoggedIn => {
+        if (isLoggedIn && this.movieId) {
+          this.loadUserRating(this.movieId);
+        } else {
+          this.userRating$.next(null);
+        }
+      });
     }
   }
 
@@ -100,6 +109,8 @@ export class MovieRatingsComponent implements OnInit {
           this.closeReviewForm(); // Close the modal
           // Refresh ratings to show the new comment
           this.loadRatings(this.movieId!, this.currentPage);
+          // Reload user's rating to show the updated rating
+          this.loadUserRating(this.movieId!);
           this.isSubmittingRating = false;
         },
         error: (error) => {
@@ -119,6 +130,10 @@ export class MovieRatingsComponent implements OnInit {
   // Review form toggle methods
   toggleReviewForm(): void {
     this.showReviewForm = !this.showReviewForm;
+    if (this.showReviewForm) {
+      // Pre-populate with existing rating when opening the form
+      this.loadExistingRatingIntoForm();
+    }
   }
 
   closeReviewForm(): void {
@@ -126,8 +141,35 @@ export class MovieRatingsComponent implements OnInit {
     this.resetForm();
   }
 
+  private loadExistingRatingIntoForm(): void {
+    const existingRating = this.userRating$.value;
+    if (existingRating) {
+      this.selectedRating = existingRating.rating;
+      this.ratingForm.patchValue({
+        rating: existingRating.rating,
+        comment: existingRating.comment || ''
+      });
+    }
+  }
+
   getCharacterCount(): number {
     return this.ratingForm.get('comment')?.value?.length || 0;
+  }
+
+  getWordCount(): number {
+    const comment = this.ratingForm.get('comment')?.value || '';
+    return comment.trim() === '' ? 0 : comment.trim().split(/\s+/).length;
+  }
+
+  // Custom validator for word limit
+  wordLimitValidator(maxWords: number) {
+    return (control: any) => {
+      if (!control.value) {
+        return null;
+      }
+      const wordCount = control.value.trim() === '' ? 0 : control.value.trim().split(/\s+/).length;
+      return wordCount > maxWords ? { wordLimit: { actual: wordCount, max: maxWords } } : null;
+    };
   }
 
   // Pagination methods
@@ -193,6 +235,23 @@ export class MovieRatingsComponent implements OnInit {
         this.ratingsData$.next(response);
         this.setupCountries(response.distribution);
         this.calculateRatingDistribution();
+      },
+      error: (error) => this.handleError(error)
+    });
+  }
+
+  private loadUserRating(movieId: string): void {
+    this.movieService.getUserRating(movieId).subscribe({
+      next: (rating: Rating | null) => {
+        this.userRating$.next(rating);
+        if (rating) {
+          // Pre-populate form with existing rating and comment
+          this.selectedRating = rating.rating;
+          this.ratingForm.patchValue({
+            rating: rating.rating,
+            comment: rating.comment || ''
+          });
+        }
       },
       error: (error) => this.handleError(error)
     });
