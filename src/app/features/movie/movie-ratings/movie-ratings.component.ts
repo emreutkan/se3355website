@@ -55,6 +55,7 @@ export class MovieRatingsComponent implements OnInit {
   isSubmittingRating = false;
   currentPage = 1;
   movieId: string | null = null;
+  showReviewForm = false;
 
   // Computed observables
   ratings$ = this.ratingsData$.pipe(
@@ -96,6 +97,7 @@ export class MovieRatingsComponent implements OnInit {
       this.movieService.rateMovie(this.movieId, rating, comment).subscribe({
         next: () => {
           this.resetForm();
+          this.closeReviewForm(); // Close the modal
           // Refresh ratings to show the new comment
           this.loadRatings(this.movieId!, this.currentPage);
           this.isSubmittingRating = false;
@@ -112,6 +114,16 @@ export class MovieRatingsComponent implements OnInit {
     this.ratingForm.reset();
     this.selectedRating = 0;
     this.hoverRating = 0;
+  }
+
+  // Review form toggle methods
+  toggleReviewForm(): void {
+    this.showReviewForm = !this.showReviewForm;
+  }
+
+  closeReviewForm(): void {
+    this.showReviewForm = false;
+    this.resetForm();
   }
 
   getCharacterCount(): number {

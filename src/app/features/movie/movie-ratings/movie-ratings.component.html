@@ -35,31 +35,9 @@
           <div class="rating-value">
             <i class="fas fa-star"></i>
             <div class="rating-info">
-              <span class="score"><strong>{{ formatRating(movie.imdb_score) }}/10</strong></span>
+              <span class="score"><strong>{{ movie.imdb_score }}/10</strong></span>
               <span class="rating-votes-small">{{ formatVotes(movie.rating_count || 0) }}</span>
             </div>
-          </div>
-        </div>
-        <div class="rating-item">
-          <span class="rating-title">YOUR RATING</span>
-          <div class="rating-value rate-blue" *ngIf="!(isLoggedIn$ | async)">
-            <i class="fas fa-star"></i>
-            <span>Rate</span>
-          </div>
-          <div class="rating-value" *ngIf="isLoggedIn$ | async">
-            <div class="your-rating-stars">
-              <span 
-                *ngFor="let i of [1,2,3,4,5,6,7,8,9,10]" 
-                class="star-large"
-                [class.filled]="i <= selectedRating"
-                [class.hover]="i <= hoverRating && hoverRating > 0"
-                (click)="selectRating(i)"
-                (mouseenter)="hoverRatingValue(i)"
-                (mouseleave)="resetHover()">
-                ★
-              </span>
-            </div>
-            <span class="current-rating" *ngIf="selectedRating > 0">{{ selectedRating }}</span>
           </div>
         </div>
       </div>
@@ -133,80 +111,93 @@
       </button>
     </section>
 
-    <!-- Add Review Section -->
-    <section class="add-review-section" *ngIf="isLoggedIn$ | async">
-      <div class="review-header">
-        <img [src]="movie.image_url" [alt]="movie.title" class="review-movie-poster">
-        <div class="review-info">
-          <h4>{{ movie.title }}</h4>
-          <span class="movie-year">R • {{ movie.year }} • {{ (movie.runtime_min || 0) }}m</span>
-          <h3>User Review</h3>
+    <!-- Add Comment Button -->
+    <section class="add-comment-section" *ngIf="(isLoggedIn$ | async) && !showReviewForm">
+      <button class="add-comment-btn" (click)="toggleReviewForm()">
+        <i class="fas fa-plus"></i>
+        Add Comment
+      </button>
+    </section>
+
+    <!-- Add Review Section (Popup Form) -->
+    <section class="add-review-section" *ngIf="(isLoggedIn$ | async) && showReviewForm">
+      <div class="review-modal-overlay" (click)="closeReviewForm()"></div>
+      <div class="review-modal">
+        <div class="review-header">
+          <img [src]="movie.image_url" [alt]="movie.title" class="review-movie-poster">
+          <div class="review-info">
+            <h4>{{ movie.title }}</h4>
+            <span class="movie-year">R • {{ movie.year }} • {{ (movie.runtime_min || 0) }}m</span>
+            <h3>Add User Review</h3>
+          </div>
+          <button class="close-btn" (click)="closeReviewForm()">
+            <i class="fas fa-times"></i>
+          </button>
         </div>
-      </div>
 
-      <div class="add-user-review">
-        <h4>Add User Review</h4>
-        <form [formGroup]="ratingForm" (ngSubmit)="onSubmitRating()" class="review-form">
-          <div class="rating-section">
-            <label class="form-label">Your rating</label>
-            <div class="rating-display">
-              <span class="rating-number">{{ selectedRating || '?' }}</span>
-              <span class="rating-max">/10</span>
+        <div class="add-user-review">
+          <form [formGroup]="ratingForm" (ngSubmit)="onSubmitRating()" class="review-form">
+            <div class="rating-section">
+              <label class="form-label">Your rating</label>
+              <div class="rating-display">
+                <span class="rating-number">{{ selectedRating || '?' }}</span>
+                <span class="rating-max">/10</span>
+              </div>
+              <div class="rating-stars-form">
+                <span 
+                  *ngFor="let i of [1,2,3,4,5,6,7,8,9,10]" 
+                  class="star-form"
+                  [class.filled]="i <= selectedRating"
+                  [class.hover]="i <= hoverRating && hoverRating > 0"
+                  (click)="selectRating(i)"
+                  (mouseenter)="hoverRatingValue(i)"
+                  (mouseleave)="resetHover()">
+                  ★
+                </span>
+              </div>
             </div>
-            <div class="rating-stars-form">
-              <span 
-                *ngFor="let i of [1,2,3,4,5,6,7,8,9,10]" 
-                class="star-form"
-                [class.filled]="i <= selectedRating"
-                [class.hover]="i <= hoverRating && hoverRating > 0"
-                (click)="selectRating(i)"
-                (mouseenter)="hoverRatingValue(i)"
-                (mouseleave)="resetHover()">
-                ★
-              </span>
+
+            <div class="form-group">
+              <label for="review-title" class="form-label">Title of your review</label>
+              <input 
+                type="text" 
+                id="review-title" 
+                class="form-input"
+                placeholder="Title of your review"
+                maxlength="100">
             </div>
-          </div>
 
-          <div class="form-group">
-            <label for="review-title" class="form-label">Title of your review</label>
-            <input 
-              type="text" 
-              id="review-title" 
-              class="form-input"
-              placeholder="Title of your review"
-              maxlength="100">
-          </div>
-
-          <div class="form-group">
-            <label for="review-content" class="form-label">Review</label>
-            <textarea 
-              id="review-content" 
-              formControlName="comment"
-              class="form-textarea"
-              placeholder="Write your review here..."
-              rows="8"
-              maxlength="500">
-            </textarea>
-            <div class="character-count">
-              <span>{{ getCharacterCount() }}/500</span>
+            <div class="form-group">
+              <label for="review-content" class="form-label">Review</label>
+              <textarea 
+                id="review-content" 
+                formControlName="comment"
+                class="form-textarea"
+                placeholder="Write your review here..."
+                rows="6"
+                maxlength="500">
+              </textarea>
+              <div class="character-count">
+                <span>{{ getCharacterCount() }}/500</span>
+              </div>
             </div>
-          </div>
 
-          <div class="form-actions">
-            <button 
-              type="submit"
-              class="submit-review-btn"
-              [disabled]="selectedRating === 0 || isSubmittingRating">
-              {{ isSubmittingRating ? 'Submitting...' : 'Submit Review' }}
-            </button>
-            <button 
-              type="button"
-              class="cancel-btn"
-              (click)="resetForm()">
-              Cancel
-            </button>
-          </div>
-        </form>
+            <div class="form-actions">
+              <button 
+                type="submit"
+                class="submit-review-btn"
+                [disabled]="selectedRating === 0 || isSubmittingRating">
+                {{ isSubmittingRating ? 'Submitting...' : 'Submit Review' }}
+              </button>
+              <button 
+                type="button"
+                class="cancel-btn"
+                (click)="closeReviewForm()">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </section>
 
@@ -247,7 +238,7 @@
             <div class="review-meta">
               <span class="review-author">{{ rating.user?.full_name || 'Anonymous' }}</span>
               <span class="review-date">{{ formatDate(rating.created_at) }}</span>
-              <span class="review-country" *ngIf="rating.user?.country"> • {{ rating.user?.country }}</span>
+              <span class="review-country" *ngIf="rating.user?.country">{{ rating.user?.country }}</span>
             </div>
           </div>
         </div>
