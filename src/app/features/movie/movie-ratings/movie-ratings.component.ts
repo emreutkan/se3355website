@@ -72,14 +72,15 @@ export class MovieRatingsComponent implements OnInit {
     if (this.movieId) {
       this.loadMovieDetails(this.movieId);
       this.loadRatings(this.movieId, 1);
+      // TODO: Uncomment when backend endpoint /api/movies/{id}/ratings/me is implemented
       // Load user's existing rating if logged in
-      this.isLoggedIn$.subscribe(isLoggedIn => {
-        if (isLoggedIn && this.movieId) {
-          this.loadUserRating(this.movieId);
-        } else {
-          this.userRating$.next(null);
-        }
-      });
+      // this.isLoggedIn$.subscribe(isLoggedIn => {
+      //   if (isLoggedIn && this.movieId) {
+      //     this.loadUserRating(this.movieId);
+      //   } else {
+      //     this.userRating$.next(null);
+      //   }
+      // });
     }
   }
 
@@ -109,8 +110,8 @@ export class MovieRatingsComponent implements OnInit {
           this.closeReviewForm(); // Close the modal
           // Refresh ratings to show the new comment
           this.loadRatings(this.movieId!, this.currentPage);
-          // Reload user's rating to show the updated rating
-          this.loadUserRating(this.movieId!);
+          // TODO: Reload user's rating when backend endpoint is available
+          // this.loadUserRating(this.movieId!);
           this.isSubmittingRating = false;
         },
         error: (error) => {
@@ -241,20 +242,8 @@ export class MovieRatingsComponent implements OnInit {
   }
 
   private loadUserRating(movieId: string): void {
-    this.movieService.getUserRating(movieId).subscribe({
-      next: (rating: Rating | null) => {
-        this.userRating$.next(rating);
-        if (rating) {
-          // Pre-populate form with existing rating and comment
-          this.selectedRating = rating.rating;
-          this.ratingForm.patchValue({
-            rating: rating.rating,
-            comment: rating.comment || ''
-          });
-        }
-      },
-      error: (error) => this.handleError(error)
-    });
+    // TODO: Implement the logic to load user's existing rating
+    this.userRating$.next(null);
   }
 
   private setupCountries(distribution: any[]): void {

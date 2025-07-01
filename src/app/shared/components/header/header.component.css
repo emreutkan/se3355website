@@ -236,14 +236,14 @@
   top: calc(100% + 2px);
   left: 0;
   right: 0;
-  background: #212121;
+  background: #212121 !important;
   border: 1px solid #303030;
   border-radius: 4px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   z-index: 1001;
   max-height: 400px;
   overflow-y: auto;
-  color: #fff;
+  color: #fff !important;
 }
 
 .typeahead-category-header {
@@ -263,6 +263,7 @@
   cursor: pointer;
   border-bottom: 1px solid #303030;
   transition: background-color 0.2s;
+  color: #fff !important;
 }
 
 .typeahead-item:hover {
@@ -312,6 +313,16 @@
   overflow: hidden;
   text-overflow: ellipsis;
   font-family: 'Roboto', sans-serif;
+}
+
+/* Ensure all typeahead text is visible */
+.typeahead-dropdown * {
+  color: inherit !important;
+}
+
+.typeahead-dropdown .suggestion-title,
+.typeahead-dropdown .typeahead-category-header {
+  color: #fff !important;
 }
 
 .suggestion-meta {
