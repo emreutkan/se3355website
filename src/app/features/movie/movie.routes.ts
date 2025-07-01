@@ -5,5 +5,10 @@ export const MOVIE_ROUTES: Routes = [
   {
     path: ':id',
     component: MovieDetailsComponent
+  },
+  {
+    path: '',
+    pathMatch: 'full',
+    redirectTo: '/home' // Or some other appropriate default
   }
 ]; 

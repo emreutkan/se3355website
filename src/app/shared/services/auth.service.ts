@@ -55,8 +55,18 @@ export class AuthService {
   }
 
   register(userData: RegisterData): Observable<RegisterResponse> {
-    const { photo_url, ...dataToSend } = userData;
-    return this.http.post<RegisterResponse>(`${apiUrl}/auth/register`, dataToSend)
+    const formData = new FormData();
+    const toSnakeCase = (str: string) => str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+
+    Object.keys(userData).forEach(key => {
+      const snakeCaseKey = toSnakeCase(key);
+      const value = userData[key as keyof RegisterData];
+      if (value !== null && value !== undefined) {
+        formData.append(snakeCaseKey, value as string | Blob);
+      }
+    });
+
+    return this.http.post<RegisterResponse>(`${apiUrl}/auth/register`, formData)
       .pipe(
         catchError(error => this.handleAuthError(error))
       );

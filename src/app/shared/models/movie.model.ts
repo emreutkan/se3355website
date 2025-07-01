@@ -17,15 +17,15 @@ export interface Movie {
   title: string;
   title_tr?: string;
   year: number;
-  genre?: string[];
+  categories: string[];
   director?: string[];
+  writers?: string[];
   summary: string;
   summary_tr?: string;
   imdb_score: number;
+  metascore: number;
   image_url: string;
   actors?: Actor[];
-  runtime?: number;
-  country?: string;
   language?: string;
   release_date?: string;
   popularity?: Popularity;

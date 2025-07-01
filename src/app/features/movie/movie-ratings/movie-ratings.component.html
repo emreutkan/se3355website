@@ -1,0 +1,65 @@
+<div class="ratings-page-container" *ngIf="movie">
+  <div class="header">
+    <a routerLink="../" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
+    <div class="header-title">
+      <img [src]="movie.image_url" [alt]="movie.title" class="header-poster">
+      <div>
+        <h2>{{ movie.title }}</h2>
+        <h1>Ratings</h1>
+      </div>
+    </div>
+  </div>
+
+  <div class="ratings-content">
+    <section class="imdb-rating-section">
+      <h3>IMDb rating</h3>
+      <p class="section-description">The IMDb rating is weighted to help keep it reliable. <a href="#">Learn more</a></p>
+      <div class="ratings-summary">
+        <div class="rating-item">
+          <span class="rating-title">IMDB RATING</span>
+          <div class="rating-value">
+            <i class="fas fa-star"></i>
+            <div>
+              <span><strong>{{ movie.imdb_score }}/10</strong></span>
+              <span class="rating-votes-small">{{ movie.rating_count }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="rating-item">
+          <span class="rating-title">YOUR RATING</span>
+          <div class="rating-value rate-blue">
+            <i class="fas fa-star"></i>
+            <span>Rate</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="user-ratings-section">
+      <h3>User ratings</h3>
+      <p class="section-description">FILTER BY COUNTRY</p>
+      <p class="section-description-small">Countries with the most ratings</p>
+      <div class="country-filters">
+        <button
+          *ngFor="let country of countries"
+          class="filter-btn"
+          [class.active]="country === selectedCountry"
+          (click)="selectCountry(country)">
+          {{ country }}
+        </button>
+      </div>
+      <div class="ratings-distribution">
+        <div class="dist-bar-item" *ngFor="let dist of ratingDistribution">
+          <span class="dist-rating">{{ dist.rating }}</span>
+          <div class="dist-bar-container">
+            <div class="dist-bar" [style.width.%]="dist.percentage"></div>
+          </div>
+          <span class="dist-info">{{ dist.percentage }}% ({{ dist.votes }})</span>
+        </div>
+        <div class="unweighted-mean">
+          {{ unweightedMean.toFixed(1) }} Unweighted mean
+        </div>
+      </div>
+    </section>
+  </div>
+</div> 

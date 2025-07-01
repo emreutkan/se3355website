@@ -1,10 +1,12 @@
 import { Routes } from '@angular/router';
+import { HomeComponent } from './features/home/home.component';
+import { MovieRatingsComponent } from './features/movie/movie-ratings/movie-ratings.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   {
     path: 'home',
-    loadChildren: () => import('./features/home/home.module').then(m => m.HomeModule)
+    component: HomeComponent
   },
   {
     path: 'search',
@@ -21,6 +23,10 @@ export const routes: Routes = [
   {
     path: 'watchlist',
     loadChildren: () => import('./features/watchlist/watchlist.routes').then(m => m.WATCHLIST_ROUTES)
+  },
+  {
+    path: 'ratings/:id',
+    component: MovieRatingsComponent
   },
   {
     path: '**',
