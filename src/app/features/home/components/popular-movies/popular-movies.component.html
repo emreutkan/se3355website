@@ -11,7 +11,9 @@
     <button class="carousel-arrow left-arrow" 
             (click)="scrollLeft()" 
             [disabled]="!canScrollLeft"
-            *ngIf="popularMovies.length > 6">
+            *ngIf="popularMovies.length > 4"
+            aria-label="Scroll left"
+            title="Previous movies">
       <i class="fas fa-chevron-left"></i>
     </button>
     
@@ -28,7 +30,9 @@
     <button class="carousel-arrow right-arrow" 
             (click)="scrollRight()" 
             [disabled]="!canScrollRight"
-            *ngIf="popularMovies.length > 6">
+            *ngIf="popularMovies.length > 4"
+            aria-label="Scroll right"
+            title="Next movies">
       <i class="fas fa-chevron-right"></i>
     </button>
   </div>
