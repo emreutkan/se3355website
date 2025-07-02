@@ -528,10 +528,23 @@
   padding: 8px;
   border-radius: 4px;
   transition: background-color 0.2s;
+  color: #fff;
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .language-selector-trigger:hover {
   background-color: rgba(255, 255, 255, 0.1);
+}
+
+.language-selector-trigger span {
+  color: #fff;
+}
+
+.language-selector-trigger .dropdown-arrow {
+  fill: #fff;
 }
 
 .language-dropdown {

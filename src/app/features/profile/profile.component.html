@@ -1,0 +1,225 @@
+<div class="profile-container">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-section">
+    <div class="loading-spinner"></div>
+    <p>{{ 'profile.loading' | translate }}</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="error-section">
+    <div class="error-icon">⚠️</div>
+    <p class="error-message">{{ error }}</p>
+    <button class="retry-button" (click)="loadUserProfile()">{{ 'home.retry' | translate }}</button>
+  </div>
+
+  <!-- Profile Content -->
+  <div *ngIf="userProfile && !isLoading" class="profile-content">
+    <!-- Header Section -->
+    <div class="profile-header">
+      <div class="header-background"></div>
+      <div class="header-content">
+        <div class="profile-image-section">
+          <div class="profile-image-container">
+            <img *ngIf="imagePreview || userProfile.photo_url" 
+                 [src]="imagePreview || userProfile.photo_url" 
+                 [alt]="userProfile.full_name"
+                 class="profile-image"
+                 (error)="onImageError($event)">
+            <div *ngIf="!imagePreview && !userProfile.photo_url" 
+                 class="profile-image-placeholder">
+              {{ getInitials(userProfile.full_name) }}
+            </div>
+            
+            <!-- Edit Photo Button (only when editing) -->
+            <div *ngIf="isEditing" class="photo-upload-overlay">
+              <input type="file" 
+                     id="photo-upload" 
+                     accept="image/*" 
+                     (change)="onFileSelected($event)"
+                     class="photo-input">
+              <label for="photo-upload" class="photo-upload-button">
+                <i class="fas fa-camera"></i>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-info">
+          <h1 class="profile-name">{{ userProfile.full_name }}</h1>
+          <p class="profile-email">{{ userProfile.email }}</p>
+          <div class="profile-metadata">
+            <span *ngIf="userProfile.city || userProfile.country" class="location">
+              <i class="fas fa-map-marker-alt"></i>
+              {{ userProfile.city }}{{ userProfile.city && userProfile.country ? ', ' : '' }}{{ getCountryName(userProfile.country || '') }}
+            </span>
+            <span class="join-date">
+              <i class="fas fa-calendar-alt"></i>
+              {{ 'profile.member_since' | translate }} {{ formatDate(userProfile.created_at) }}
+            </span>
+            <span class="auth-provider">
+              <i class="fas" [class.fa-google]="userProfile.auth_provider === 'google'" [class.fa-user]="userProfile.auth_provider === 'local'"></i>
+              {{ userProfile.auth_provider === 'google' ? 'Google Account' : 'Local Account' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="profile-actions">
+          <button *ngIf="!isEditing" 
+                  (click)="toggleEditing()" 
+                  class="edit-profile-btn">
+            <i class="fas fa-edit"></i>
+            {{ 'profile.edit' | translate }}
+          </button>
+          <div *ngIf="isEditing" class="edit-actions">
+            <button (click)="onSubmit()" 
+                    [disabled]="!profileForm.valid || isSaving"
+                    class="save-btn">
+              <i class="fas fa-check" *ngIf="!isSaving"></i>
+              <i class="fas fa-spinner fa-spin" *ngIf="isSaving"></i>
+              {{ isSaving ? ('profile.saving' | translate) : ('profile.save' | translate) }}
+            </button>
+            <button (click)="toggleEditing()" 
+                    [disabled]="isSaving"
+                    class="cancel-btn">
+              <i class="fas fa-times"></i>
+              {{ 'profile.cancel' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div *ngIf="successMessage" class="success-message">
+      <i class="fas fa-check-circle"></i>
+      {{ successMessage }}
+    </div>
+    <div *ngIf="error" class="error-message">
+      <i class="fas fa-exclamation-circle"></i>
+      {{ error }}
+    </div>
+
+    <!-- Main Content -->
+    <div class="profile-main">
+      <!-- Statistics Section -->
+      <div class="stats-section">
+        <h2 class="section-title">{{ 'profile.statistics' | translate }}</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-star"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-number">{{ userProfile.statistics?.total_ratings || 0 }}</div>
+              <div class="stat-label">{{ 'profile.ratings_given' | translate }}</div>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-number">{{ (userProfile.statistics?.average_rating || 0) | number:'1.1-1' }}</div>
+              <div class="stat-label">{{ 'profile.average_rating' | translate }}</div>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-bookmark"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-number">{{ userProfile.statistics?.watchlist_count || 0 }}</div>
+              <div class="stat-label">{{ 'profile.watchlist_movies' | translate }}</div>
+            </div>
+          </div>
+          
+                     <div class="stat-card" *ngIf="userProfile.statistics?.favorite_genres?.length">
+             <div class="stat-icon">
+               <i class="fas fa-heart"></i>
+             </div>
+             <div class="stat-content">
+               <div class="stat-number">{{ userProfile.statistics?.favorite_genres?.length }}</div>
+               <div class="stat-label">{{ 'profile.favorite_genres' | translate }}</div>
+             </div>
+           </div>
+        </div>
+      </div>
+
+      <!-- Profile Details Section -->
+      <div class="details-section">
+        <h2 class="section-title">{{ 'profile.personal_info' | translate }}</h2>
+        
+        <!-- View Mode -->
+        <div *ngIf="!isEditing" class="details-view">
+          <div class="detail-item">
+            <label class="detail-label">{{ 'profile.full_name' | translate }}</label>
+            <div class="detail-value">{{ userProfile.full_name }}</div>
+          </div>
+          
+          <div class="detail-item">
+            <label class="detail-label">{{ 'profile.email' | translate }}</label>
+            <div class="detail-value">{{ userProfile.email }}</div>
+          </div>
+          
+          <div class="detail-item">
+            <label class="detail-label">{{ 'profile.location' | translate }}</label>
+            <div class="detail-value">
+              <span *ngIf="userProfile.city || userProfile.country; else noLocation">
+                {{ userProfile.city }}{{ userProfile.city && userProfile.country ? ', ' : '' }}{{ getCountryName(userProfile.country || '') }}
+              </span>
+              <ng-template #noLocation>
+                <span class="no-data">{{ 'profile.no_location' | translate }}</span>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+
+        <!-- Edit Mode -->
+        <form *ngIf="isEditing" [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="details-form">
+          <div class="form-group">
+            <label for="full_name" class="form-label">{{ 'profile.full_name' | translate }} *</label>
+            <input type="text" 
+                   id="full_name" 
+                   formControlName="full_name" 
+                   class="form-input"
+                   [class.error]="fullNameError">
+            <div *ngIf="fullNameError" class="field-error">{{ fullNameError }}</div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="city" class="form-label">{{ 'profile.city' | translate }}</label>
+              <input type="text" 
+                     id="city" 
+                     formControlName="city" 
+                     class="form-input"
+                     placeholder="Enter your city">
+            </div>
+
+            <div class="form-group">
+              <label for="country" class="form-label">{{ 'profile.country' | translate }}</label>
+              <select id="country" formControlName="country" class="form-select">
+                <option value="">{{ 'profile.select_country' | translate }}</option>
+                <option *ngFor="let country of countries" [value]="country.code">
+                  {{ country.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="photo_url" class="form-label">{{ 'profile.photo_url' | translate }}</label>
+            <input type="url" 
+                   id="photo_url" 
+                   formControlName="photo_url" 
+                   class="form-input"
+                   placeholder="https://example.com/photo.jpg">
+            <div class="field-hint">{{ 'profile.photo_url_hint' | translate }}</div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div> 

@@ -132,7 +132,30 @@ export class LanguageService {
       'auth.confirm_password_required': 'Please confirm your password.',
       'auth.passwords_do_not_match': 'Passwords do not match.',
       'auth.already_have_account': 'Already have an account?',
-      'auth.signin_link': 'Sign-In'
+      'auth.signin_link': 'Sign-In',
+
+      // Profile
+      'profile.loading': 'Loading profile...',
+      'profile.edit': 'Edit Profile',
+      'profile.save': 'Save Changes',
+      'profile.saving': 'Saving...',
+      'profile.cancel': 'Cancel',
+      'profile.statistics': 'Your Statistics',
+      'profile.personal_info': 'Personal Information',
+      'profile.member_since': 'Member since',
+      'profile.ratings_given': 'Ratings Given',
+      'profile.average_rating': 'Average Rating',
+      'profile.watchlist_movies': 'Watchlist Movies',
+      'profile.favorite_genres': 'Favorite Genres',
+      'profile.full_name': 'Full Name',
+      'profile.email': 'Email Address',
+      'profile.location': 'Location',
+      'profile.city': 'City',
+      'profile.country': 'Country',
+      'profile.photo_url': 'Photo URL',
+      'profile.photo_url_hint': 'Enter a direct link to your profile photo',
+      'profile.no_location': 'No location specified',
+      'profile.select_country': 'Select Country'
     },
     tr: {
       // Header
@@ -253,7 +276,30 @@ export class LanguageService {
       'auth.confirm_password_required': 'Lütfen şifrenizi onaylayın.',
       'auth.passwords_do_not_match': 'Şifreler eşleşmiyor.',
       'auth.already_have_account': 'Zaten bir hesabınız var mı?',
-      'auth.signin_link': 'Giriş Yap'
+      'auth.signin_link': 'Giriş Yap',
+
+      // Profile
+      'profile.loading': 'Profil yükleniyor...',
+      'profile.edit': 'Profili Düzenle',
+      'profile.save': 'Değişiklikleri Kaydet',
+      'profile.saving': 'Kaydediliyor...',
+      'profile.cancel': 'İptal',
+      'profile.statistics': 'İstatistikleriniz',
+      'profile.personal_info': 'Kişisel Bilgiler',
+      'profile.member_since': 'Üyelik tarihi',
+      'profile.ratings_given': 'Verilen Puanlar',
+      'profile.average_rating': 'Ortalama Puan',
+      'profile.watchlist_movies': 'İzleme Listesi Filmleri',
+      'profile.favorite_genres': 'Favori Türler',
+      'profile.full_name': 'Ad Soyad',
+      'profile.email': 'E-posta Adresi',
+      'profile.location': 'Konum',
+      'profile.city': 'Şehir',
+      'profile.country': 'Ülke',
+      'profile.photo_url': 'Fotoğraf URL\'si',
+      'profile.photo_url_hint': 'Profil fotoğrafınızın doğrudan bağlantısını girin',
+      'profile.no_location': 'Konum belirtilmemiş',
+      'profile.select_country': 'Ülke Seçin'
     }
   };
 

@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './features/home/home.component';
 import { MovieRatingsComponent } from './features/movie/movie-ratings/movie-ratings.component';
+import { ProfileComponent } from './features/profile/profile.component';
+import { authGuard } from './shared/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
@@ -23,6 +25,11 @@ export const routes: Routes = [
   {
     path: 'watchlist',
     loadChildren: () => import('./features/watchlist/watchlist.routes').then(m => m.WATCHLIST_ROUTES)
+  },
+  {
+    path: 'profile',
+    component: ProfileComponent,
+    canActivate: [authGuard]
   },
   {
     path: 'ratings/:id',

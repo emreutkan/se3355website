@@ -155,8 +155,9 @@ export class MovieSliderComponent implements OnInit, OnDestroy {
   }
 
   onImageError(event: any, movie: Movie): void {
-    // Hide the image element if backend image fails to load
-    event.target.style.display = 'none';
+    // Use a placeholder image instead of hiding the element
+    event.target.src = 'https://via.placeholder.com/240x360/1a1a1a/f5c518?text=No+Image';
+    event.target.alt = 'Movie poster not available';
   }
 
   onWatchTrailer(movie: Movie) {

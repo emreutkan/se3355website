@@ -152,6 +152,11 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
+  updateCurrentUser(user: User): void {
+    this.currentUserSubject.next(user);
+    localStorage.setItem('imdb-user', JSON.stringify(user));
+  }
+
   // ===== HELPER METHODS (UI state management) =====
   private clearLocalStorage(): void {
     localStorage.removeItem('imdb-token');

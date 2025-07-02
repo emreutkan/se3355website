@@ -89,7 +89,8 @@ export class PopularMoviesComponent implements OnInit, AfterViewInit, OnDestroy 
     if (!this.carousel) return;
     
     const element = this.carousel.nativeElement;
-    const scrollAmount = 204 * 3; // 3 cards (180px + 24px gap)
+    const cardWidth = this.getCardWidth();
+    const scrollAmount = cardWidth * 3; // Scroll 3 cards at a time
     
     // If we're at the beginning, wrap to the end
     if (element.scrollLeft <= 10) {
@@ -109,7 +110,8 @@ export class PopularMoviesComponent implements OnInit, AfterViewInit, OnDestroy 
     if (!this.carousel) return;
     
     const element = this.carousel.nativeElement;
-    const scrollAmount = 204 * 3; // 3 cards (180px + 24px gap)
+    const cardWidth = this.getCardWidth();
+    const scrollAmount = cardWidth * 3; // Scroll 3 cards at a time
     const maxScroll = element.scrollWidth - element.clientWidth;
     
     // If we're at the end, wrap to the beginning
@@ -123,6 +125,18 @@ export class PopularMoviesComponent implements OnInit, AfterViewInit, OnDestroy 
         left: scrollAmount,
         behavior: 'smooth'
       });
+    }
+  }
+
+  private getCardWidth(): number {
+    // Responsive card width calculation
+    const screenWidth = window.innerWidth;
+    if (screenWidth <= 768) {
+      return 148; // 140px + 8px gap for mobile
+    } else if (screenWidth <= 1200) {
+      return 172; // 160px + 12px gap for tablet
+    } else {
+      return 204; // 180px + 24px gap for desktop
     }
   }
 

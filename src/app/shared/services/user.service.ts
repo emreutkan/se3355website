@@ -28,17 +28,24 @@ export class UserService {
   // ===== MIRROR BACKEND UserService.get_user_statistics() =====
   getUserStatistics(): Observable<UserStatistics> {
     return this.getUserProfile().pipe(
-      map(profile => profile.statistics),
+      map(response => response.profile.statistics),
       catchError(this.handleError)
     );
   }
 
   // ===== MIRROR BACKEND UserService profile methods =====
-  getUserProfile(): Observable<UserProfile> {
+  getUserProfile(): Observable<{profile: UserProfile}> {
     return this.http.get<GetUserProfileResponse>(`${apiUrl}/users/me/profile`, {
       headers: this.getAuthHeaders()
     }).pipe(
-      map(res => res.profile),
+      catchError(this.handleError)
+    );
+  }
+
+  updateUserProfile(profileData: any): Observable<{profile: UserProfile, msg: string}> {
+    return this.http.put<{profile: UserProfile, msg: string}>(`${apiUrl}/users/me/profile`, profileData, {
+      headers: this.getAuthHeaders()
+    }).pipe(
       catchError(this.handleError)
     );
   }
