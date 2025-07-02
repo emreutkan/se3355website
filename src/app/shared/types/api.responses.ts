@@ -95,9 +95,9 @@ export interface SubmitRatingResponse {
 export interface GetUserProfileResponse {
   profile: User & {
     statistics: {
-      average_rating: number;
+      average_rating_given: number;
       favorite_genres: string[];
-      total_ratings: number;
+      ratings_count: number;
       watchlist_count: number;
     }
   };

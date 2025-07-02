@@ -3,26 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../shared/services/auth.service';
 import { UserService } from '../../shared/services/user.service';
-import { User } from '../../shared/models/user.model';
+import { User, UserProfile } from '../../shared/models/user.model';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { Router } from '@angular/router';
-
-interface UserProfile {
-  id: string;
-  email: string;
-  full_name: string;
-  city?: string;
-  country?: string;
-  photo_url?: string;
-  auth_provider: 'local' | 'google';
-  created_at?: string;
-  statistics?: {
-    total_ratings: number;
-    average_rating: number;
-    watchlist_count: number;
-    favorite_genres: string[];
-  };
-}
 
 @Component({
   selector: 'app-profile',

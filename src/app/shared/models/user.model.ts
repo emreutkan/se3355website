@@ -10,8 +10,8 @@ export interface User {
 }
 
 export interface UserStatistics {
-  total_ratings: number;
-  average_rating: number;
+  ratings_count: number;
+  average_rating_given: number;
   watchlist_count: number;
   favorite_genres: string[];
 }
