@@ -34,10 +34,7 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
-    });
+    // Remove duplicate form initialization - it's already done in constructor
   }
 
   get email() { return this.loginForm.get('email'); }

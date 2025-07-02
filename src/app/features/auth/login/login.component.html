@@ -22,7 +22,7 @@
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
       <div class="form-group">
-        <label for="email">{{ 'auth.email_or_phone' | translate }}</label>
+        <label for="email">Email</label>
         <input 
           id="email" 
           type="email" 
@@ -43,10 +43,7 @@
       </div>
 
       <div class="form-group">
-        <div class="password-label">
-          <label for="password">{{ 'auth.password' | translate }}</label>
-          <a routerLink="/auth/forgot-password" class="password-assistance">{{ 'auth.password_assistance' | translate }}</a>
-        </div>
+        <label for="password">{{ 'auth.password' | translate }}</label>
         <div class="password-input-wrapper">
           <input 
             id="password" 
@@ -84,11 +81,6 @@
       <div id="form-status" class="sr-only" aria-live="polite">
         <span *ngIf="loginForm.invalid">Form has errors, please review and correct</span>
         <span *ngIf="isLoading">Signing in, please wait</span>
-      </div>
-
-      <div class="form-group keep-signed-in">
-        <input type="checkbox" id="keep-signed-in" formControlName="keepSignedIn">
-        <label for="keep-signed-in">{{ 'auth.keep_me_signed_in' | translate }}</label>
       </div>
     </form>
 
