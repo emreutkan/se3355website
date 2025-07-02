@@ -2,6 +2,15 @@
 
 A modern, responsive movie rating and review platform built with Angular 20 and deployed on Azure Static Web Apps.
 
+## 🚀 Live Deployment
+
+### Frontend Application
+- **Live URL**: https://thankful-cliff-012dd3803.1.azurestaticapps.net/
+
+### Backend API
+- **Live URL**: https://be984984-aphkd5f2e7ake9ey.westeurope-01.azurewebsites.net/
+- **Repository**: https://github.com/emreutkan/se3355finalbackend
+
 ## 🎬 Project Overview
 
 This is a full-featured movie database and rating application that allows users to discover movies, rate them, write reviews, and manage personal watchlists. The platform supports multiple languages and provides a seamless user experience with both local authentication and Google OAuth integration.

@@ -118,6 +118,12 @@ export class RegisterComponent implements OnInit {
 
     this.isLoading = true;
     const { photo, ...formData } = this.registerForm.value;
+    
+    // Include photo data if a file was selected
+    if (this.selectedFile && this.imagePreview) {
+      formData.photo_url = this.imagePreview;
+    }
+    
     this.authService.register(formData).subscribe({
       next: () => {
         this.router.navigate(['/auth/login']);
