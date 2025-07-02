@@ -150,13 +150,11 @@ The frontend communicates with a RESTful backend API hosted on Azure. All API ca
 - **Angular 20**: Latest Angular framework with standalone components
 - **TypeScript 5.8**: Strong typing and modern JavaScript features
 - **RxJS 7.8**: Reactive programming for state management
-- **FontAwesome**: Icon library for UI elements
 - **CSS3**: Custom styling with responsive design
 
 ### Development Tools
 - **Angular CLI**: Project scaffolding and build tools
 - **ESLint**: Code linting and style enforcement
-- **Karma & Jasmine**: Unit testing framework
 - **Prettier**: Code formatting
 
 ### Deployment
@@ -164,36 +162,10 @@ The frontend communicates with a RESTful backend API hosted on Azure. All API ca
 - **Node.js 20**: Runtime environment
 - **NPM**: Package management
 
-## 🚀 Setup & Deployment
-
-### Prerequisites
-- Node.js >= 20.19.0
-- NPM >= 8.0.0
-
-### Local Development
-```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm start
-
-# Build for production
-npm run build
-
-# Run tests
-npm test
-
-# Lint code
-npm run lint
-```
-
-
 ## Assumptions & Design Decisions
 
 ### Authentication Strategy
 - **JWT Tokens**: Used for API authentication with refresh token support
-- **Local Storage**: Chosen over session storage for persistent login across browser sessions
 - **Google OAuth**: Implemented for social authentication to improve user experience
 
 ### Internationalization
@@ -202,8 +174,7 @@ npm run lint
 - **Fallback Strategy**: English content displayed when Turkish translation unavailable
 
 ### User Experience
-- **Lazy Loading**: Feature modules loaded on-demand to reduce initial bundle size
-- **Responsive Design**: Mobile-first approach with breakpoints for different screen sizes
+- **Responsive Design**: breakpoints for different screen sizes
 - **Progressive Enhancement**: Core functionality works without JavaScript (where possible)
 
 
@@ -214,12 +185,10 @@ npm run lint
 **Solution**:
 - Implemented proper redirect URI handling
 - Added comprehensive error handling for OAuth failures
-- Created fallback authentication with local login system
 
 ### 2. State Management Complexity
 **Problem**: Managing user state across multiple components became complex.
 **Solution**:
 - Implemented reactive state management using BehaviorSubjects
 - Created centralized services for state management
-- Used RxJS operators for efficient data flow
 
