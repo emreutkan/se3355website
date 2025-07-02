@@ -1,4 +1,9 @@
-# SE3355 Movie Rating Website
+
+## 🎬 Demo
+
+Check out a video demonstration of the application:
+
+[![SE3355 Movie Rating Website Demo](https://img.youtube.com/vi/34wobgofPR0/0.jpg)](https://www.youtube.com/watch?v=34wobgofPR0)
 
 A modern, responsive movie rating and review platform built with Angular 20 and deployed on Azure Static Web Apps.
 
@@ -24,6 +29,8 @@ This is a full-featured movie database and rating application that allows users 
 - **Internationalization**: Multi-language support (English/Turkish)
 - **Responsive Design**: Optimized for desktop and mobile devices
 - **Real-time Search**: Typeahead suggestions and advanced search capabilities
+
+
 
 ## 🏗️ Architecture & Design
 
