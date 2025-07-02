@@ -25,7 +25,7 @@ import { SubmitRatingRequest } from '../types/api.requests';
 export class MovieService {
   private http = inject(HttpClient);
   private languageService = inject(LanguageService);
-  private readonly apiUrl = 'http://localhost:5000/api';
+  private readonly apiUrl =  apiUrl;
 
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);
@@ -68,7 +68,7 @@ export class MovieService {
     if (comment) {
       ratingData.comment = comment;
     }
-    
+
     return this.http.post<ApiResponse<Rating>>(`${this.apiUrl}/movies/${movieId}/ratings`, ratingData, {
       headers: this.getAuthHeaders()
     }).pipe(catchError(this.handleError));
@@ -134,7 +134,7 @@ export class MovieService {
     const headers = this.getAuthHeaders();
     const lang = this.languageService.getCurrentLanguage();
     const params = new HttpParams().set('lang', lang);
-    
+
     return this.http.get<{ movie: Movie }>(`${this.apiUrl}/movies/${movieId}`, { headers, params })
       .pipe(
         map(response => response.movie),
@@ -147,7 +147,7 @@ export class MovieService {
     const params = new HttpParams()
       .set('limit', limit.toString())
       .set('lang', lang);
-    
+
     return this.http.get<GetPopularMoviesResponse>(`${this.apiUrl}/movies/popular`, { params })
       .pipe(catchError(this.handleError));
   }
@@ -157,9 +157,9 @@ export class MovieService {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
-    
+
     if (search) params = params.set('search', search);
-    
+
     return this.http.get<GetActorsResponse>(`${this.apiUrl}/actors`, { params })
       .pipe(catchError(this.handleError));
   }
@@ -173,7 +173,7 @@ export class MovieService {
   private handleError = (error: HttpErrorResponse): Observable<never> => {
     console.error('MovieService error:', error);
     let msg = 'An unexpected error occurred';
-    
+
     if (error.status === 0) msg = 'Cannot connect to server.';
     else if (error.status === 400) msg = error.error?.msg || 'Bad request';
     else if (error.status === 401) msg = 'Authentication required';

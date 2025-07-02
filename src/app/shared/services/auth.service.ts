@@ -12,7 +12,7 @@ import { apiUrl } from '../types/api';
 export class AuthService {
   private http = inject(HttpClient);
   private currentUserSubject = new BehaviorSubject<User | null>(null);
-  
+
   public currentUser$ = this.currentUserSubject.asObservable();
   public isLoggedIn$ = this.currentUser$.pipe(map(user => !!user));
 
@@ -72,7 +72,7 @@ export class AuthService {
   // ===== Google OAuth flow initiation =====
   initiateGoogleLogin(): void {
     const clientId = '554088359923-ivcsq00lju65qvg7op946eij0l88vl3r.apps.googleusercontent.com';
-    const redirectUri = 'http://localhost:5000/api/auth/google/callback';
+    const redirectUri = 'https://be984984-aphkd5f2e7ake9ey.westeurope-01.azurewebsites.net/api/auth/google/callback';
     const scope = 'openid email profile';
     const responseType = 'code';
 
