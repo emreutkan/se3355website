@@ -17,8 +17,11 @@
 
   <!-- Main Featured Movie -->
   <div class="featured-movie" *ngIf="currentMovie">
-    <div class="movie-backdrop"
-         [style.background-image]="'url(' + getBackdropUrl(currentMovie) + ')'">
+    <!-- Blurred Background Layer -->
+    <div class="movie-backdrop-blur"
+         [style.background-image]="'url(' + getBackdropUrl(currentMovie) + ')'"></div>
+    
+    <div class="movie-backdrop">
       <div class="backdrop-overlay"></div>
 
       <div class="movie-content">

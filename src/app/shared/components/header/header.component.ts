@@ -142,10 +142,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
 
     this.movieService.getTypeaheadSuggestions(query).subscribe({
-      next: (suggestions: any[]) => {
-        // The typeahead response is already mapped to an array by the service
-        const titles = suggestions.filter((s: any) => s.type === 'movie');
-        const celebs = suggestions.filter((s: any) => s.type === 'actor');
+      next: (response: any) => {
+        // The typeahead response needs to be mapped to the existing titles/celebs structure
+        const titles = response.filter((s: any) => s.type === 'movie');
+        const celebs = response.filter((s: any) => s.type === 'actor');
 
         this.typeaheadResults = {
           titles: titles.map((t: any) => ({ id: t.id, title: t.title, year: t.year, image_url: t.image_url, media_type: 'movie' })),

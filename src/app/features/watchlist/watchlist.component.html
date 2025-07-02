@@ -1,21 +1,50 @@
-<div class="watchlist-container">
-  <h1>Your Watchlist</h1>
+<main class="watchlist-container" role="main">
+  <header class="watchlist-header">
+    <h1>Your Watchlist</h1>
+  </header>
 
   <div *ngIf="watchlist$ | async as watchlist" class="watchlist-grid">
     <div *ngIf="watchlist.length === 0" class="empty-watchlist">
-      <p>Your watchlist is empty.</p>
-      <a routerLink="/" class="browse-button">Browse movies</a>
+      <div class="empty-icon" aria-hidden="true">📋</div>
+      <h2>Your watchlist is empty</h2>
+      <p>Start building your watchlist by adding movies you want to watch later.</p>
+      <a routerLink="/" 
+         class="browse-button"
+         aria-label="Browse movies to add to your watchlist">
+        Browse Movies
+      </a>
     </div>
 
-    <div *ngFor="let item of watchlist" class="watchlist-item">
-      <a [routerLink]="['/movie', item.movie.id]">
-        <img [src]="item.movie.image_url" [alt]="item.movie.title">
-      </a>
-      <div class="item-details">
-        <h3>{{ item.movie.title }}</h3>
-        <p>{{ item.movie.year }}</p>
-        <button (click)="removeFromWatchlist(item.movie.id)" class="remove-button">Remove</button>
+    <article *ngFor="let item of watchlist" 
+             class="watchlist-item"
+             role="listitem">
+      <div class="movie-poster">
+        <a [routerLink]="['/movie', item.movie.id]" 
+           [attr.aria-label]="'View details for ' + item.movie.title">
+          <img [src]="item.movie.image_url" 
+               [alt]="item.movie.title + ' poster'"
+               loading="lazy">
+        </a>
       </div>
-    </div>
+      
+      <div class="item-details">
+        <h3>
+          <a [routerLink]="['/movie', item.movie.id]">{{ item.movie.title }}</a>
+        </h3>
+        <div class="movie-info">
+          <span class="year">{{ item.movie.year }}</span>
+        </div>
+        <div class="item-actions">
+          <button (click)="removeFromWatchlist(item.movie.id)" 
+                  class="remove-button"
+                  [attr.aria-label]="'Remove ' + item.movie.title + ' from watchlist'"
+                  type="button">
+            Remove
+          </button>
+        </div>
+      </div>
+    </article>
   </div>
-</div> 
+</main>
+
+ 

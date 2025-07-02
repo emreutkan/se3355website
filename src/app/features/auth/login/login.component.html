@@ -1,14 +1,42 @@
 <div class="login-container">
-  <a routerLink="/" class="imdb-logo-link">
+  <a routerLink="/" class="imdb-logo-link" aria-label="Return to IMDb homepage">
     <div class="imdb-logo">IMDb</div>
   </a>
-  <div class="login-box">
+  
+  <main class="login-box" role="main">
     <h1>{{ 'auth.signin' | translate }}</h1>
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    
+    <!-- Loading overlay -->
+    <div class="loading-overlay" *ngIf="isLoading" aria-live="polite" aria-label="Signing in, please wait">
+      <div class="loading-spinner" aria-hidden="true"></div>
+      <span class="loading-text">{{ 'auth.signing_in' | translate }}</span>
+    </div>
+
+
+
+    <!-- Global error message -->
+    <div class="error-message" *ngIf="errorMessage" role="alert" aria-live="assertive">
+      <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+      {{ errorMessage }}
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
       <div class="form-group">
         <label for="email">{{ 'auth.email_or_phone' | translate }}</label>
-        <input id="email" type="email" formControlName="email" required>
-        <div *ngIf="email?.invalid && (email?.dirty || email?.touched)" class="error-text">
+        <input 
+          id="email" 
+          type="email" 
+          formControlName="email" 
+          required
+          autocomplete="email"
+          [class.error]="email?.invalid && (email?.dirty || email?.touched)"
+          [attr.aria-describedby]="email?.invalid && (email?.dirty || email?.touched) ? 'email-error' : null"
+          [attr.aria-invalid]="email?.invalid && (email?.dirty || email?.touched) ? 'true' : 'false'">
+        <div id="email-error" 
+             *ngIf="email?.invalid && (email?.dirty || email?.touched)" 
+             class="error-text" 
+             role="alert"
+             aria-live="polite">
           <small *ngIf="email?.errors?.['required']">{{ 'auth.error.email.required' | translate }}</small>
           <small *ngIf="email?.errors?.['email']">{{ 'auth.error.email.invalid' | translate }}</small>
         </div>
@@ -19,29 +47,62 @@
           <label for="password">{{ 'auth.password' | translate }}</label>
           <a routerLink="/auth/forgot-password" class="password-assistance">{{ 'auth.password_assistance' | translate }}</a>
         </div>
-        <input id="password" type="password" formControlName="password" required>
-        <div *ngIf="password?.invalid && (password?.dirty || password?.touched)" class="error-text">
+        <div class="password-input-wrapper">
+          <input 
+            id="password" 
+            type="password" 
+            formControlName="password" 
+            required
+            autocomplete="current-password"
+            [class.error]="password?.invalid && (password?.dirty || password?.touched)"
+            [attr.aria-describedby]="password?.invalid && (password?.dirty || password?.touched) ? 'password-error' : 'password-help'"
+            [attr.aria-invalid]="password?.invalid && (password?.dirty || password?.touched) ? 'true' : 'false'">
+        </div>
+        <div id="password-help" class="form-help" *ngIf="!password?.invalid || (!password?.dirty && !password?.touched)">
+          Password must be at least 6 characters long
+        </div>
+        <div id="password-error" 
+             *ngIf="password?.invalid && (password?.dirty || password?.touched)" 
+             class="error-text" 
+             role="alert"
+             aria-live="polite">
           <small *ngIf="password?.errors?.['required']">{{ 'auth.error.password.required' | translate }}</small>
+          <small *ngIf="password?.errors?.['minlength']">Password must be at least 6 characters long</small>
         </div>
       </div>
 
-      <div *ngIf="errorMessage" class="error-message">
-        {{ errorMessage }}
-      </div>
-
-      <button type="submit" [disabled]="loginForm.invalid || isLoading" class="login-button">
+      <button 
+        type="submit" 
+        [disabled]="loginForm.invalid || isLoading" 
+        class="login-button"
+        [attr.aria-describedby]="loginForm.invalid ? 'form-status' : null">
         <span *ngIf="!isLoading">{{ 'auth.signin' | translate }}</span>
-        <span *ngIf="isLoading" class="spinner"></span>
+        <span *ngIf="isLoading" class="spinner" aria-hidden="true"></span>
+        <span *ngIf="isLoading" class="sr-only">Signing in, please wait</span>
       </button>
 
+      <div id="form-status" class="sr-only" aria-live="polite">
+        <span *ngIf="loginForm.invalid">Form has errors, please review and correct</span>
+        <span *ngIf="isLoading">Signing in, please wait</span>
+      </div>
+
       <div class="form-group keep-signed-in">
-        <input type="checkbox" id="keep-signed-in">
-        <label for="keep-signed-in">{{ 'auth.keep_me_signed_in' | translate }} <a href="#">{{ 'auth.details' | translate }} <svg class="dropdown-arrow" viewBox="0 0 24 24"><path d="M7,10L12,15L17,10H7Z"></path></svg></a></label>
+        <input type="checkbox" id="keep-signed-in" formControlName="keepSignedIn">
+        <label for="keep-signed-in">{{ 'auth.keep_me_signed_in' | translate }}</label>
       </div>
     </form>
 
-    <button (click)="onGoogleLogin()" class="google-login-button">
-      <img src="assets/icons/google-logo.svg" alt="Google logo">
+    <div class="separator">
+      <span>{{ 'auth.or' | translate }}</span>
+    </div>
+
+    <button 
+      (click)="onGoogleLogin()" 
+      class="google-login-button"
+      [disabled]="isLoading"
+      [attr.aria-label]="'Sign in with Google'"
+      type="button">
+      <img src="assets/icons/google-logo.svg" alt="" aria-hidden="true">
       {{ 'auth.google' | translate }}
     </button>
 
@@ -49,7 +110,16 @@
       <span>{{ 'auth.new_to_imdb' | translate }}</span>
     </div>
 
-    <a routerLink="/auth/register" class="create-account-button">{{ 'auth.create_your_imdb_account' | translate }}</a>
+    <a routerLink="/auth/register" 
+       class="create-account-button"
+       [attr.aria-label]="'Create a new IMDb account'">
+      {{ 'auth.create_your_imdb_account' | translate }}
+    </a>
+  </main>
+</div>
 
-  </div>
+<!-- Screen reader announcements -->
+<div aria-live="polite" aria-atomic="true" class="sr-only">
+  <span *ngIf="isLoading">Authentication in progress</span>
+  <span *ngIf="errorMessage">Authentication failed: {{ errorMessage }}</span>
 </div>

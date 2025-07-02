@@ -218,8 +218,13 @@
   min-width: 80px;
 }
 
-.crew-names .actor-name {
-  color: #fff;
+.crew-names a {
+  color: #5799ef;
+  text-decoration: none;
+}
+
+.crew-names a:hover {
+  text-decoration: underline;
 }
 
 @media (max-width: 768px) {

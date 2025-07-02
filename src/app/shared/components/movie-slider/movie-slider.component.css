@@ -62,7 +62,7 @@
   overflow: hidden;
 }
 
-.movie-backdrop {
+.movie-backdrop-blur {
   position: absolute;
   top: 0;
   left: 0;
@@ -71,6 +71,18 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  filter: blur(8px);
+  transform: scale(1.1);
+  z-index: 1;
+}
+
+.movie-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
 }
 
 .backdrop-overlay {
@@ -92,10 +104,11 @@
   position: relative;
   z-index: 2;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  justify-content: flex-start;
   height: 100%;
   padding: 40px 24px;
-  gap: 0;
+  gap: 24px;
 }
 
 .movie-poster {
@@ -119,6 +132,7 @@
   flex: 1;
   max-width: 600px;
   padding-left: 2rem;
+  text-align: left;
 }
 
 .movie-title {
@@ -128,11 +142,12 @@
   margin: 0 0 16px 0;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
   line-height: 1.2;
+  text-align: left;
 }
 
 .movie-meta {
   display: flex;
-  align-items: center;
+  /*align-items: center;*/
   gap: 16px;
   margin-bottom: 20px;
   flex-wrap: wrap;
@@ -179,6 +194,7 @@
   margin: 0 0 24px 0;
   max-width: 500px;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  text-align: left;
 }
 
 /* Action Buttons */
@@ -186,6 +202,7 @@
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+  justify-content: flex-start;
 }
 
 .action-btn {
@@ -373,9 +390,10 @@
 
   .movie-content {
     flex-direction: column;
-    text-align: center;
+    text-align: left;
     padding: 20px 16px;
     gap: 20px;
+    align-items: flex-start;
   }
 
   .poster-img {
@@ -388,11 +406,11 @@
   }
 
   .movie-meta {
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   .movie-actions {
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   .action-btn {
@@ -425,6 +443,8 @@
 
   .movie-content {
     padding: 16px 12px;
+    text-align: left;
+    align-items: flex-start;
   }
 
   .poster-img {

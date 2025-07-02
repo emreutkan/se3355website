@@ -647,3 +647,141 @@
   align-items: center;
   position: relative;
 }
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Enhanced focus states */
+.search-category-selector:focus,
+.search-input:focus,
+.search-submit:focus,
+.language-selector-trigger:focus,
+.user-menu-trigger:focus,
+.navbar__menu-button:focus {
+  outline: 2px solid #f5c518;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(245, 197, 24, 0.3);
+}
+
+/* Improved button styling for accessibility */
+.typeahead-item {
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.typeahead-item:hover,
+.typeahead-item:focus {
+  background-color: #f0f0f0;
+  outline: none;
+}
+
+.search-category-item {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.search-category-item:hover,
+.search-category-item:focus {
+  background-color: #f0f0f0;
+  outline: none;
+}
+
+.language-item {
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  color: white;
+  transition: background-color 0.2s ease;
+}
+
+.language-item:hover,
+.language-item:focus {
+  background-color: #333;
+  outline: none;
+}
+
+.user-menu-trigger {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dropdown-indicator {
+  font-size: 0.8rem;
+  transition: transform 0.2s ease;
+}
+
+.user-menu-trigger[aria-expanded="true"] .dropdown-indicator {
+  transform: rotate(180deg);
+}
+
+/* Improved mobile accessibility */
+@media (max-width: 768px) {
+  .navbar__search {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #000;
+    padding: 1rem;
+    z-index: 1000;
+    display: none;
+  }
+
+  .navbar__search.mobile-open {
+    display: block;
+  }
+
+  .search-container {
+    width: 100%;
+  }
+
+  .search-input-wrapper {
+    width: 100%;
+  }
+
+  .typeahead-dropdown {
+    position: static;
+    box-shadow: none;
+    border: 1px solid #333;
+    margin-top: 0.5rem;
+  }
+
+  /* Touch-friendly buttons */
+  .navbar__menu-button,
+  .search-submit,
+  .language-selector-trigger,
+  .user-menu-trigger {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Larger touch targets for mobile */
+  .typeahead-item,
+  .search-category-item,
+  .language-item {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+  }
+}

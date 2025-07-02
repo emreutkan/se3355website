@@ -38,17 +38,17 @@ export class MovieRatingsComponent implements OnInit {
   userRating$ = new BehaviorSubject<Rating | null>(null);
   currentUser$ = this.authService.currentUser$;
   isLoggedIn$ = this.authService.isLoggedIn$;
-  
+
   // Rating form state
   ratingForm: FormGroup = this.fb.group({
     rating: [null, [Validators.required, Validators.min(1), Validators.max(10)]],
     comment: ['', [this.wordLimitValidator(200)]]
   });
-  
+
   // UI state for star rating
   selectedRating = 0;
   hoverRating = 0;
-  
+
   // UI state
   selectedCountry = 'All Countries';
   availableCountries: string[] = ['All Countries'];
@@ -72,15 +72,13 @@ export class MovieRatingsComponent implements OnInit {
     if (this.movieId) {
       this.loadMovieDetails(this.movieId);
       this.loadRatings(this.movieId, 1);
-      // TODO: Uncomment when backend endpoint /api/movies/{id}/ratings/me is implemented
-      // Load user's existing rating if logged in
-      // this.isLoggedIn$.subscribe(isLoggedIn => {
-      //   if (isLoggedIn && this.movieId) {
-      //     this.loadUserRating(this.movieId);
-      //   } else {
-      //     this.userRating$.next(null);
-      //   }
-      // });
+      this.isLoggedIn$.subscribe(isLoggedIn => {
+        if (isLoggedIn && this.movieId) {
+          this.loadUserRating(this.movieId);
+        } else {
+          this.userRating$.next(null);
+        }
+      });
     }
   }
 
@@ -103,15 +101,14 @@ export class MovieRatingsComponent implements OnInit {
     if (this.ratingForm.valid && !this.isSubmittingRating && this.movieId) {
       this.isSubmittingRating = true;
       const { rating, comment } = this.ratingForm.value;
-      
+
       this.movieService.rateMovie(this.movieId, rating, comment).subscribe({
         next: () => {
           this.resetForm();
           this.closeReviewForm(); // Close the modal
           // Refresh ratings to show the new comment
           this.loadRatings(this.movieId!, this.currentPage);
-          // TODO: Reload user's rating when backend endpoint is available
-          // this.loadUserRating(this.movieId!);
+          this.loadUserRating(this.movieId!);
           this.isSubmittingRating = false;
         },
         error: (error) => {
@@ -199,7 +196,7 @@ export class MovieRatingsComponent implements OnInit {
     const stars = [];
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 >= 0.5;
-    
+
     for (let i = 0; i < fullStars; i++) {
       stars.push('filled');
     }
@@ -262,8 +259,8 @@ export class MovieRatingsComponent implements OnInit {
 
     // Calculate distribution from actual data
     const distribution = ratingsData.distribution;
-    const selectedData = this.selectedCountry === 'All Countries' 
-      ? distribution 
+    const selectedData = this.selectedCountry === 'All Countries'
+      ? distribution
       : distribution.filter(d => d.country === this.selectedCountry);
 
     this.ratingDistribution = [];
@@ -273,7 +270,7 @@ export class MovieRatingsComponent implements OnInit {
       const countryData = selectedData.find(d => Math.floor(d.avg_rating) === rating);
       const votes = countryData ? countryData.votes : 0;
       const percentage = totalVotes > 0 ? (votes / totalVotes) * 100 : 0;
-      
+
       this.ratingDistribution.push({
         rating,
         percentage,
