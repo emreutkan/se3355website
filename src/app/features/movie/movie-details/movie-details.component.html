@@ -78,7 +78,7 @@
         <strong>Stars</strong>
         <span class="crew-names">
           <ng-container *ngFor="let actor of movie.actors; let last = last">
-            <a href="#" [routerLink]="['/actor', actor.id]">{{ actor.full_name }}</a>{{ !last ? ', ' : '' }}
+            <a >{{ actor.full_name }}</a>{{ !last ? ', ' : '' }}
           </ng-container>
         </span>
       </div>
